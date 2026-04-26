@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TWL Tracker — This Week's Lunch</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0f4f8; --surface:#fff; --surface2:#e8f0f7; --border:#c8daea;
+  --primary:#1a6fb5; --primary-dark:#145a96; --primary-light:#e8f2fc;
+  --accent:#f0a500; --green:#16a34a; --green-light:#dcfce7;
+  --red:#dc2626; --red-light:#fee2e2; --orange:#ea580c; --orange-light:#ffedd5;
+  --purple:#7c3aed; --purple-light:#ede9fe;
+  --text:#1a2c3d; --muted:#5a7a96;
+  --font-head:'Nunito',sans-serif; --font-body:'Nunito Sans',sans-serif;
+  --shadow:0 2px 8px rgba(26,111,181,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--primary);padding:0 16px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(26,111,181,0.3);}
+.logo-area{display:flex;align-items:center;gap:10px;}
+.logo-svg{width:44px;height:44px;flex-shrink:0;}
+.logo-text{font-family:var(--font-head);color:white;line-height:1.15;}
+.logo-text .l1{font-size:10px;font-weight:700;opacity:0.8;text-transform:uppercase;letter-spacing:1px;}
+.logo-text .l2{font-size:18px;font-weight:900;letter-spacing:0.3px;}
+.logo-text .l3{font-size:10px;font-weight:600;opacity:0.7;letter-spacing:0.5px;}
+.date-pill{font-family:var(--font-head);font-size:11px;font-weight:700;color:rgba(255,255,255,0.85);text-align:right;line-height:1.5;}
+
+/* NAV */
+.nav-tabs{display:flex;background:var(--primary-dark);overflow-x:auto;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.tab-btn{flex:1;min-width:68px;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,0.55);font-family:var(--font-head);font-size:11px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.tab-btn.active{color:white;border-bottom-color:var(--accent);background:rgba(255,255,255,0.08);}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,0.85);}
+
+/* VIEWS */
+.view{display:none;padding:14px;max-width:640px;margin:0 auto;padding-bottom:50px;}
+.view.active{display:block;}
+.page-title{font-family:var(--font-head);font-size:21px;font-weight:900;color:var(--primary);margin-bottom:2px;}
+.page-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
+
+/* DRIVER STAGE INDICATOR */
+.stage-bar{display:flex;gap:0;margin-bottom:16px;border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+.stage-step{flex:1;padding:10px 6px;text-align:center;font-family:var(--font-head);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.3px;background:var(--surface);color:var(--muted);border-right:1px solid var(--border);transition:all 0.3s;}
+.stage-step:last-child{border-right:none;}
+.stage-step.active{background:var(--primary);color:white;}
+.stage-step.done{background:var(--green-light);color:var(--green);}
+.stage-num{font-size:16px;display:block;margin-bottom:2px;}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.card-title{font-family:var(--font-head);font-size:14px;font-weight:800;color:var(--primary);margin-bottom:12px;display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:0.5px;}
+
+/* FORMS */
+label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;}
+input,select{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font-body);font-size:15px;padding:10px 12px;margin-bottom:12px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
+input:focus,select:focus{border-color:var(--primary);background:white;}
+select option{background:white;}
+select optgroup{font-weight:700;color:var(--primary);}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:12px 16px;border:none;border-radius:10px;font-family:var(--font-head);font-size:14px;font-weight:800;letter-spacing:0.3px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,0.07);}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--primary);color:white;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-success{background:var(--green);color:white;}
+.btn-danger{background:var(--red);color:white;}
+.btn-orange{background:var(--orange);color:white;}
+.btn-purple{background:var(--purple);color:white;}
+.btn-outline{background:white;border:1.5px solid var(--border);color:var(--muted);box-shadow:none;}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);}
+.btn-accent{background:var(--accent);color:#111;}
+.btn-sm{padding:7px 12px;font-size:11px;margin-bottom:0;width:auto;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.scan-bar{display:flex;gap:8px;margin-bottom:12px;}
+.scan-bar input{margin-bottom:0;flex:1;}
+.scan-bar .btn{width:auto;padding:10px 14px;margin-bottom:0;}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-family:var(--font-head);font-size:11px;font-weight:800;letter-spacing:0.3px;text-transform:uppercase;}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-yellow{background:#fef9c3;color:#854d0e;}
+.badge-blue{background:var(--primary-light);color:var(--primary);}
+.badge-orange{background:var(--orange-light);color:var(--orange);}
+.badge-grey{background:#f1f5f9;color:#64748b;}
+.badge-purple{background:var(--purple-light);color:var(--purple);}
+
+/* ALERTS */
+.alert{border-radius:10px;padding:11px 14px;margin-bottom:12px;font-size:13px;font-weight:600;display:none;}
+.alert.show{display:block;animation:fadeIn 0.3s;}
+.alert-success{background:var(--green-light);border:1px solid #86efac;color:var(--green);}
+.alert-error{background:var(--red-light);border:1px solid #fca5a5;color:var(--red);}
+.alert-warning{background:var(--orange-light);border:1px solid #fdba74;color:var(--orange);}
+.alert-info{background:var(--primary-light);border:1px solid #93c5fd;color:var(--primary);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+
+/* SYNC BAR */
+.sync-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--primary-light);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;font-size:12px;color:var(--muted);font-weight:600;}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+.sync-dot.green{background:var(--green);box-shadow:0 0 5px var(--green);}
+.sync-dot.yellow{background:var(--accent);}
+.sync-dot.red{background:var(--red);}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center;box-shadow:var(--shadow);}
+.stat-num{font-family:var(--font-head);font-size:28px;font-weight:900;color:var(--primary);line-height:1;}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;font-weight:700;}
+
+/* PREP LOCATION GROUPS */
+.loc-group{background:var(--surface);border:2px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);}
+.loc-group-hdr{background:var(--primary);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;}
+.loc-group-name{font-family:var(--font-head);font-size:16px;font-weight:900;color:white;}
+.loc-group-meta{font-family:var(--font-head);font-size:12px;font-weight:700;color:rgba(255,255,255,0.75);}
+.loc-item-row{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+.loc-item-row:last-child{border-bottom:none;}
+.loc-item-name{font-weight:700;}
+.loc-item-id{font-size:11px;font-family:monospace;color:var(--muted);}
+.loc-item-remove{background:none;border:none;color:var(--red);font-size:17px;cursor:pointer;padding:2px 6px;border-radius:6px;}
+
+/* BUNDLE */
+.bundle-section{background:white;border:2px dashed var(--accent);border-radius:14px;margin-bottom:12px;overflow:hidden;}
+.bundle-section-hdr{background:var(--accent);padding:10px 16px;font-family:var(--font-head);font-size:13px;font-weight:800;color:#111;display:flex;align-items:center;gap:6px;}
+.bundle-inner{padding:12px 16px;}
+.bundle-select-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;}
+.bundle-select-row:last-child{border-bottom:none;}
+.bundle-cb{width:20px;height:20px;border:2px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;background:white;font-size:12px;}
+.bundle-cb.checked{background:var(--primary);border-color:var(--primary);color:white;}
+.bundle-tag{display:inline-block;background:var(--primary-light);border-radius:4px;font-family:monospace;font-size:10px;padding:1px 5px;color:var(--primary);font-weight:700;margin-left:4px;}
+.bundle-badge{background:var(--accent);color:#111;border-radius:4px;font-size:10px;font-weight:800;padding:1px 6px;font-family:var(--font-head);margin-left:6px;}
+
+/* KITCHEN CHECK ITEMS */
+.kchk-group{background:var(--surface);border:2px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);}
+.kchk-group-hdr{padding:11px 16px;display:flex;align-items:center;justify-content:space-between;}
+.kchk-group-hdr.pending{background:var(--primary);}
+.kchk-group-hdr.done{background:var(--green);}
+.kchk-group-name{font-family:var(--font-head);font-size:16px;font-weight:900;color:white;}
+.kchk-group-meta{font-family:var(--font-head);font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);}
+.kchk-items{padding:4px 16px 8px;}
+
+/* DRIVER LOCATION CARDS */
+.dloc-card{background:var(--surface);border:2px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);transition:border-color 0.2s;}
+.dloc-card.expanded{border-color:var(--primary);}
+.dloc-card.pickup-only{border-color:var(--orange);}
+.dloc-card.complete{border-color:var(--green);}
+.dloc-hdr{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.dloc-hdr-blue{background:var(--primary);}
+.dloc-hdr-orange{background:var(--orange);}
+.dloc-hdr-green{background:var(--green);}
+.dloc-loc-name{font-family:var(--font-head);font-size:17px;font-weight:900;color:white;}
+.dloc-meta{display:flex;align-items:center;gap:8px;}
+.dloc-body{display:none;padding:0 16px 12px;}
+.dloc-body.open{display:block;animation:fadeIn 0.2s;}
+.dloc-close{background:rgba(255,255,255,0.2);border:none;color:white;font-size:18px;font-weight:700;cursor:pointer;border-radius:6px;padding:2px 8px;line-height:1.2;}
+
+/* CHECK ITEMS */
+.chk-item{display:flex;align-items:flex-start;gap:11px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.chk-item:last-child{border-bottom:none;}
+.chk-item.done{opacity:0.55;}
+.chk-box{width:24px;height:24px;border:2px solid var(--border);border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.15s;background:white;margin-top:1px;}
+.chk-item.done .chk-box{background:var(--green);border-color:var(--green);color:white;}
+.chk-item.pickup-chk .chk-box{border-color:var(--orange);}
+.chk-item.pickup-chk.done .chk-box{background:var(--orange);border-color:var(--orange);color:white;}
+.chk-item.kchk .chk-box{border-color:var(--purple);}
+.chk-item.kchk.done .chk-box{background:var(--purple);border-color:var(--purple);color:white;}
+.chk-name{font-weight:700;font-size:14px;}
+.chk-meta{font-size:11px;color:var(--muted);margin-top:1px;}
+.chk-stamp{font-size:11px;font-weight:700;margin-top:2px;}
+.chk-stamp.green{color:var(--green);}
+.chk-stamp.orange{color:var(--orange);}
+.chk-stamp.purple{color:var(--purple);}
+
+/* COMPLETE BANNER */
+.complete-banner{background:var(--green-light);border:1px solid #86efac;border-radius:10px;padding:12px 14px;text-align:center;font-family:var(--font-head);font-size:15px;font-weight:900;color:var(--green);margin:10px 0;}
+.pickup-header{background:var(--orange-light);border-top:2px solid var(--orange);padding:10px 16px;font-family:var(--font-head);font-size:13px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:0.5px;margin:0 -16px;margin-top:8px;}
+
+/* EQUIPMENT */
+.equip-item{padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
+.equip-item:last-child{border-bottom:none;}
+.equip-item:hover{background:var(--primary-light);}
+.equip-row{display:flex;align-items:center;justify-content:space-between;}
+.equip-name{font-weight:700;font-size:13px;}
+.equip-id{font-size:11px;font-family:monospace;color:var(--muted);margin-top:1px;}
+.equip-loc{font-size:11px;color:var(--primary);font-weight:700;margin-top:1px;}
+.equip-detail{display:none;margin-top:8px;padding:9px 12px;background:var(--primary-light);border-radius:8px;font-size:12px;color:var(--primary);font-weight:600;border-left:3px solid var(--primary);}
+.equip-detail.open{display:block;animation:fadeIn 0.2s;}
+
+/* ITEM PILLS */
+.item-pill{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 12px;margin-bottom:8px;font-size:13px;}
+.item-pill .iname{font-weight:700;}
+.item-pill .imeta{font-size:11px;color:var(--muted);margin-top:1px;}
+.item-pill .iremove{background:none;border:none;color:var(--red);font-size:17px;cursor:pointer;padding:2px 6px;border-radius:5px;}
+
+/* MISC */
+.tag{display:inline-block;background:var(--primary-light);border-radius:4px;font-family:monospace;font-size:10px;padding:1px 5px;color:var(--primary);font-weight:700;margin-right:3px;}
+.divider{border:none;border-top:1px solid var(--border);margin:12px 0;}
+.empty-state{text-align:center;color:var(--muted);padding:24px 0;font-size:13px;}
+.empty-state .emoji{font-size:32px;margin-bottom:8px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row2>div{display:flex;flex-direction:column;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.section-label{font-family:var(--font-head);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 0 4px;}
+.no-pickup-notice{background:var(--green-light);border:1px solid #86efac;border-radius:10px;padding:10px 14px;font-size:13px;color:var(--green);font-weight:700;margin:8px 0;text-align:center;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo-area">
+    <svg class="logo-svg" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="22" r="22" fill="white"/>
+      <ellipse cx="22" cy="26" rx="10" ry="5" fill="#1a6fb5"/>
+      <rect x="12" y="21" width="20" height="7" rx="1" fill="#1a6fb5"/>
+      <ellipse cx="22" cy="21" rx="8" ry="6" fill="white" stroke="#1a6fb5" stroke-width="1.5"/>
+      <ellipse cx="17" cy="19" rx="4" ry="5" fill="white" stroke="#1a6fb5" stroke-width="1.5"/>
+      <ellipse cx="27" cy="19" rx="4" ry="5" fill="white" stroke="#1a6fb5" stroke-width="1.5"/>
+      <ellipse cx="22" cy="17" rx="5" ry="6" fill="white" stroke="#1a6fb5" stroke-width="1.5"/>
+      <rect x="14" y="25" width="16" height="2" rx="1" fill="white" opacity="0.4"/>
+      <line x1="19" y1="29" x2="19" y2="35" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="19" y1="29" x2="18" y2="27" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="19" y1="29" x2="20" y2="27" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="25" y1="27" x2="25" y2="35" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M23 27 Q25 29 25 31" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="logo-text">
+      <div class="l1">This Week's Lunch</div>
+      <div class="l2">TWL Tracker</div>
+      <div class="l3">Equipment & Delivery</div>
+    </div>
+  </div>
+  <div class="date-pill" id="datePill"></div>
+</div>
+
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab('prep',this)">📦 Prep</button>
+  <button class="tab-btn" onclick="showTab('driver',this)">🚚 Driver</button>
+  <button class="tab-btn" onclick="showTab('equipment',this)">🔧 Equipment</button>
+  <button class="tab-btn" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+  <button class="tab-btn" onclick="showTab('admin',this)">⚙️ Admin</button>
+</div>
+
+<!-- ═══════════ PREP -->
+<div class="view active" id="view-prep">
+  <div class="page-title">📦 Prep Station</div>
+  <div class="page-sub">Assign equipment to locations. Bundle items, then sync for the driver.</div>
+
+  <!-- MASTER SYNC CARD — shown on every device, every time -->
+  <div class="card" style="border:2px solid var(--primary);background:var(--primary-light);">
+    <div class="card-title">🔄 Sync from Google Sheet</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Always sync first to get the latest equipment locations. New staff should sync before their first use.</p>
+    <button class="btn btn-primary" id="sync-all-btn" onclick="syncFromSheet()">🔄 Sync All Data from Google Sheet</button>
+    <div id="sync-all-status" class="alert" style="margin-bottom:0;"></div>
+  </div>
+  <div class="sync-bar"><div class="sync-dot" id="prep-dot"></div><span id="prep-status">Not synced yet</span></div>
+
+  <!-- Status card removed — prep auto-clears when driver heads out -->
+
+  <div class="card">
+    <div class="card-title">📍 Add Item to Location</div>
+    <label>Delivery Location</label>
+    <select id="prep-loc" onchange="renderPrepGroups()"><option value="">-- Choose location --</option></select>
+    <label>Scan Barcode or Type Item ID</label>
+    <div class="scan-bar">
+      <input type="text" id="prep-scan" placeholder="Scan or type ID..." autocomplete="off" autocorrect="off" autocapitalize="off">
+      <button class="btn btn-primary" onclick="prepAdd()">ADD</button>
+    </div>
+    <label>— or pick from available inventory —</label>
+    <select id="prep-item-sel" onchange="prepPickItem()"><option value="">-- Choose item --</option></select>
+    <div id="prep-alert" class="alert"></div>
+  </div>
+
+  <div id="prep-groups"></div>
+
+  <button class="btn btn-success" id="prep-save-btn" onclick="saveManifest()">☁️ Save & Sync to Google Sheet</button>
+  <button class="btn btn-outline" onclick="clearPrep()">🗑 Clear All</button>
+</div>
+
+<!-- ═══════════ DRIVER -->
+<div class="view" id="view-driver">
+  <div class="page-title">🚚 Driver</div>
+  <div class="page-sub">Three stages: Load → Kitchen Check → Deliver & Pick Up</div>
+
+  <!-- Stage indicator -->
+  <div class="stage-bar">
+    <div class="stage-step" id="stage-1" onclick="goToStage(1)"><span class="stage-num">①</span>Load</div>
+    <div class="stage-step" id="stage-2" onclick="goToStage(2)"><span class="stage-num">②</span>Kitchen</div>
+    <div class="stage-step" id="stage-3" onclick="goToStage(3)"><span class="stage-num">③</span>Deliver</div>
+  </div>
+
+  <!-- STAGE 1: Load -->
+  <div id="driver-stage-1">
+    <div class="sync-bar"><div class="sync-dot" id="driver-dot"></div><span id="driver-status">Not loaded</span></div>
+    <div class="card">
+      <div class="card-title">📋 Load Today's Manifest</div>
+      <div id="round-indicator" style="background:var(--primary-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:var(--primary);font-weight:700;display:none;">
+        🔄 <span id="round-label">Round 1</span> — Ready for next manifest
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Press Load to get the latest manifest from the prep team. Make sure prep has synced before loading.</p>
+      <button class="btn btn-primary" id="load-btn" onclick="loadManifest()">📂 Load from Google Sheet</button>
+      <div id="driver-alert" class="alert"></div>
+    </div>
+  </div>
+
+  <!-- STAGE 2: Kitchen Check -->
+  <div id="driver-stage-2" style="display:none;">
+    <div class="card" style="background:var(--purple-light);border-color:var(--purple);">
+      <div class="card-title" style="color:var(--purple);">🏠 Kitchen Check — Scan Everything Before You Leave</div>
+      <p style="font-size:13px;color:var(--purple);margin-bottom:12px;">Scan each item or tap the checkbox to confirm you have it loaded. Items are grouped by location.</p>
+      <div class="scan-bar">
+        <input type="text" id="kchk-scan" placeholder="Scan or type ID..." autocomplete="off" autocorrect="off" autocapitalize="off">
+        <button class="btn btn-purple" onclick="kchkScan()">SCAN</button>
+      </div>
+      <div id="kchk-alert" class="alert"></div>
+    </div>
+    <div id="kchk-groups"></div>
+    <div id="kchk-footer" style="display:none;">
+      <div class="card" style="background:var(--green-light);border:2px solid var(--green);text-align:center;">
+        <div style="font-size:32px;margin-bottom:8px;">✅</div>
+        <div style="font-family:var(--font-head);font-size:18px;font-weight:900;color:var(--green);margin-bottom:8px;">Everything Loaded!</div>
+        <p style="font-size:13px;color:var(--green);margin-bottom:12px;">All items confirmed. You're good to head out.</p>
+        <button class="btn btn-success" onclick="goToStage(3)">🚚 Head Out — Start Deliveries</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAGE 3: Deliver & Pick Up -->
+  <div id="driver-stage-3" style="display:none;">
+    <div class="card">
+      <div class="card-title">🔍 Scan Item at Location</div>
+      <div class="scan-bar">
+        <input type="text" id="driver-scan" placeholder="Scan or type ID to check off..." autocomplete="off" autocorrect="off" autocapitalize="off">
+        <button class="btn btn-primary" onclick="driverScan()">SCAN</button>
+      </div>
+      <div id="driver-scan-result" class="alert"></div>
+    </div>
+    <div id="driver-locations"></div>
+    <div id="driver-footer" style="display:none;">
+      <div class="card" style="background:#fff8e1;border:2px solid var(--accent);">
+        <div class="card-title" style="color:var(--accent);">⚠️ Only Press When Back at Kitchen</div>
+        <p style="font-size:13px;color:#92400e;margin-bottom:6px;">Do <strong>not</strong> press this button until you have physically returned to the kitchen and unloaded everything.</p>
+        <p style="font-size:13px;color:#92400e;margin-bottom:12px;">This will timestamp your return, update all equipment locations, sync to Google Sheet, and prepare you for your next run.</p>
+        <button class="btn btn-success" onclick="backAtKitchen()">🏠 Back at Kitchen — Sync & Start Next Run</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ EQUIPMENT -->
+<div class="view" id="view-equipment">
+  <div class="page-title">🔧 Equipment</div>
+  <div class="page-sub">Tap any item to see specs. All tracked items and locations.</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" id="eq-total">0</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-num" id="eq-out">0</div><div class="stat-label">Out</div></div>
+    <div class="stat-card"><div class="stat-num" id="eq-in">0</div><div class="stat-label">In Kitchen</div></div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;"><div id="equip-list"></div></div>
+</div>
+
+<!-- ═══════════ DASHBOARD -->
+<div class="view" id="view-dashboard">
+  <div class="page-title">📊 Dashboard</div>
+  <div class="page-sub">Today's delivery status — tap a location to request a pickup</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" id="dash-locs">0</div><div class="stat-label">Locations</div></div>
+    <div class="stat-card"><div class="stat-num" id="dash-items">0</div><div class="stat-label">Items Out</div></div>
+    <div class="stat-card"><div class="stat-num" id="dash-done">0</div><div class="stat-label">Delivered</div></div>
+  </div>
+  <div id="dash-content"><div class="empty-state"><div class="emoji">📊</div>Load a manifest in Driver tab first.</div></div>
+  <div class="divider"></div>
+  <button class="btn btn-outline" onclick="exportCSV()">📥 Export Day Log (CSV)</button>
+</div>
+
+<!-- ═══════════ ADMIN -->
+<div class="view" id="view-admin">
+  <div class="page-title">⚙️ Admin</div>
+  <div class="page-sub">Manage locations, categories and equipment</div>
+
+  <div class="card">
+    <div class="card-title">🏫 Locations</div>
+    <div class="scan-bar">
+      <input type="text" id="new-loc" placeholder="New location name...">
+      <button class="btn btn-primary" onclick="addLocation()">ADD</button>
+    </div>
+    <div id="loc-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏷 Categories</div>
+    <div class="scan-bar">
+      <input type="text" id="new-cat" placeholder="New category...">
+      <button class="btn btn-primary" onclick="addCategory()">ADD</button>
+    </div>
+    <div id="cat-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📦 Add Equipment</div>
+    <div class="row2">
+      <div><label>Item Name</label><input type="text" id="new-eq-name" placeholder="e.g. Cooler 4"></div>
+      <div><label>Category</label><select id="new-eq-cat"></select></div>
+    </div>
+    <label>Barcode / ID (blank = auto)</label>
+    <input type="text" id="new-eq-id" placeholder="e.g. COOL-004">
+    <label>Notes / Specs</label>
+    <input type="text" id="new-eq-notes" placeholder="e.g. Holds 100 × 12oz cups, max 15kg">
+    <button class="btn btn-primary" onclick="addEquipment()">➕ Add to Inventory</button>
+    <div id="admin-alert" class="alert"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--red);">🗑 Reset Day</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Clears today's manifest and driver progress. Inventory, locations, categories and history are preserved.</p>
+    <button class="btn btn-danger" onclick="resetDay()">Reset Today's Data</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+// CONFIG & STORAGE
+// ═══════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRvXtVQ34kU6IYqndYEhoRQtoMEmQ56ELRJguXgPp82Ggfc2obvlDk_bn27ELjcWSKmw/exec'; // Note: update if redeployed
+const get = (k,d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const set = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+
+if (!localStorage.getItem('twl_v5')) {
+  set('locations', ['Sunshine Daycare','ABC Elementary','Northside School','Westview Centre']);
+  set('categories', ['Cooler','Ladle','Tongs','Chafing Dish','Bus Bin','Container','Other']);
+  set('equipment', [
+    {id:'COOL-001',name:'Cooler 1',category:'Cooler',location:'Kitchen',notes:'Holds 100 × 12oz cups or 75 square containers, max 15kg'},
+    {id:'COOL-002',name:'Cooler 2',category:'Cooler',location:'Kitchen',notes:'Holds 100 × 12oz cups or 75 square containers, max 15kg'},
+    {id:'COOL-003',name:'Cooler 3',category:'Cooler',location:'Kitchen',notes:'Small — 60 × 8oz cups, max 8kg'},
+    {id:'LADL-001',name:'Ladle 1',category:'Ladle',location:'Kitchen',notes:'0.5 cup per scoop (120ml)'},
+    {id:'LADL-002',name:'Ladle 2',category:'Ladle',location:'Kitchen',notes:'0.25 cup per scoop (60ml)'},
+    {id:'TONG-001',name:'Tongs 1',category:'Tongs',location:'Kitchen',notes:'9" stainless — general use'},
+    {id:'BBIN-001',name:'Bus Bin 1',category:'Bus Bin',location:'Kitchen',notes:'Large — cutlery for 200 portions'},
+    {id:'BBIN-002',name:'Bus Bin 2',category:'Bus Bin',location:'Kitchen',notes:'Medium — cutlery for 100 portions'},
+    {id:'CHAF-001',name:'Chafing Dish 1',category:'Chafing Dish',location:'Kitchen',notes:'Full size — 2 full hotel pans'},
+  ]);
+  set('manifest', []);
+  set('item_history', []);
+  set('pickup_requests', []);
+  set('rounds', []);
+  localStorage.setItem('twl_v5','1');
+}
+
+// State
+let prepItems = [];
+let driverManifest = [];
+let kitchenChecked = new Set(); // ids confirmed at kitchen
+let expandedLocs = new Set();
+let currentStage = 1;
+let roundCount = get('rounds',[]).length + 1;
+
+// ═══════════════════════════════════
+// DATE / TIME
+// ═══════════════════════════════════
+function fmtTime(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('en-CA',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+}
+function nowISO() { return new Date().toISOString(); }
+(function clock() {
+  const n = new Date();
+  document.getElementById('datePill').innerHTML =
+    n.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'}).toUpperCase() +
+    '<br>' + n.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
+  setTimeout(clock, 30000);
+})();
+
+// ═══════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════
+function showTab(tab, btn) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab==='prep') { renderPrepSelects(); renderPrepGroups(); }
+  if (tab==='equipment') renderEquipment();
+  if (tab==='dashboard') renderDashboard();
+  if (tab==='admin') renderAdmin();
+}
+
+// ═══════════════════════════════════
+// DRIVER STAGES
+// ═══════════════════════════════════
+function goToStage(n) {
+  if (n === 2 && !driverManifest.length) { return; }
+  currentStage = n;
+  [1,2,3].forEach(i => {
+    document.getElementById('driver-stage-'+i).style.display = i===n ? 'block' : 'none';
+    const s = document.getElementById('stage-'+i);
+    s.classList.remove('active','done');
+    if (i < n) s.classList.add('done');
+    else if (i === n) s.classList.add('active');
+  });
+  if (n===2) renderKitchenCheck();
+  if (n===3) renderDriverLocations();
+  // When driver heads out (stage 3), auto-clear prep immediately
+  if (n===3) {
+    set('driver_left', true);
+    set('prep_was_reset', false);
+    // Auto-reset prep — no manual step needed
+    prepItems = [];
+    Object.keys(locBundleChecked).forEach(k=>{ if(locBundleChecked[k]) locBundleChecked[k].clear(); });
+    set('manifest', get('manifest',[])); // keep manifest for driver to load, don't wipe it
+  }
+  // When back at load (stage 1 after a round), show round indicator
+  if (n===1 && roundCount > 1) {
+    const ri = document.getElementById('round-indicator');
+    const rl = document.getElementById('round-label');
+    if (ri && rl) { rl.textContent = 'Round '+roundCount; ri.style.display = 'block'; }
+  }
+}
+
+// ═══════════════════════════════════
+// GOOGLE SHEETS — SOURCE OF TRUTH
+// ═══════════════════════════════════
+
+// Push a single new equipment item to the sheet
+async function pushNewEquipment(item) {
+  const res = await fetch(SCRIPT_URL, {
+    method:'POST',
+    body: JSON.stringify({action:'addEquipment', item})
+  });
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+// Push location updates for a list of items (packed, delivered, picked up, returned)
+async function pushLocationUpdates(items) {
+  const res = await fetch(SCRIPT_URL, {
+    method:'POST',
+    body: JSON.stringify({action:'updateLocations', items})
+  });
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+// Pull everything from sheet — equipment is the source of truth
+async function pullSheets() {
+  const res = await fetch(SCRIPT_URL+'?t='+Date.now());
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+// Full sync — used on first open or by new staff member
+async function syncFromSheet() {
+  const btn = document.getElementById('sync-all-btn');
+  const status = document.getElementById('sync-all-status');
+  if (btn) { btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Syncing...'; }
+  status.className='alert alert-info show';
+  status.textContent='Syncing equipment data...';
+  try {
+    const localEq = get('equipment',[]);
+
+    // Step 1 — Pull from sheet
+    const data = await pullSheets();
+    const sheetEq = (data.equipment||[]).filter(e => e.id && e.id !== 'id');
+
+    // Step 2 — Find local items not yet in sheet and push them up
+    const missingFromSheet = localEq.filter(le => !sheetEq.find(se => String(se.id) === String(le.id)));
+    if (missingFromSheet.length) {
+      status.textContent='Uploading '+missingFromSheet.length+' local item(s) to sheet...';
+      // Push each missing item as a new permanent row
+      for (const item of missingFromSheet) {
+        await pushNewEquipment({
+          ...item,
+          location: item.location || 'Kitchen',
+          status: item.status || 'available',
+          lastUpdated: nowISO()
+        });
+      }
+    }
+
+    // Step 3 — Merge: sheet locations override local (sheet is truth),
+    // but local items that weren't on sheet are now added with Kitchen location
+    const allSheetIds = new Set([...sheetEq.map(se=>String(se.id)), ...missingFromSheet.map(le=>String(le.id))]);
+    const merged = [];
+
+    // Items that were already on sheet — use sheet location/status
+    sheetEq.forEach(se => {
+      const local = localEq.find(le => String(le.id) === String(se.id));
+      merged.push({
+        id: String(se.id),
+        name: se.name || (local ? local.name : ''),
+        category: se.category || (local ? local.category : ''),
+        location: se.location || 'Kitchen',
+        status: se.status || 'available',
+        notes: se.notes || (local ? local.notes : ''),
+        lastUpdated: se.lastUpdated || ''
+      });
+    });
+
+    // Items just pushed from local — set as Kitchen/available
+    missingFromSheet.forEach(le => {
+      merged.push({
+        ...le,
+        location: 'Kitchen',
+        status: 'available',
+        lastUpdated: nowISO()
+      });
+    });
+
+    set('equipment', merged);
+
+    const eqCount = merged.length;
+    const lastSync = new Date().toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
+    set('last_sync', lastSync);
+
+    const pushMsg = missingFromSheet.length ? ' ('+missingFromSheet.length+' new items added to sheet)' : '';
+    status.className='alert alert-success show';
+    status.textContent='✅ Synced — '+eqCount+' items · '+lastSync+pushMsg+'. Dropdown shows Kitchen items only.';
+    setSyncStatus('prep-dot','prep-status','green','Synced · '+lastSync);
+
+    renderPrepSelects();
+    renderPrepGroups();
+    renderEquipment();
+
+  } catch(err) {
+    status.className='alert alert-error show';
+    status.textContent='❌ Sync failed. Check internet connection and try again.';
+  }
+  if (btn) { btn.disabled=false; btn.innerHTML='🔄 Sync All Data from Google Sheet'; }
+}
+
+function setSyncStatus(dotId,statusId,state,msg) {
+  const dot = document.getElementById(dotId);
+  const stat = document.getElementById(statusId);
+  if (dot) dot.className='sync-dot '+state;
+  if (stat) stat.textContent=msg;
+}
+
+// ═══════════════════════════════════
+// PREP — SELECTS
+// ═══════════════════════════════════
+function getAvailableEquipment() {
+  const eq = get('equipment',[]);
+  const usedIds = new Set(prepItems.map(i=>i.id));
+  // Only show items in Kitchen — this is always enforced, not just after reset
+  return eq.filter(e => {
+    if (usedIds.has(e.id)) return false;
+    return e.location === 'Kitchen';
+  });
+}
+
+function renderPrepSelects() {
+  const locs = get('locations',[]);
+  const locSel = document.getElementById('prep-loc');
+  const curLoc = locSel.value;
+  locSel.innerHTML = '<option value="">-- Choose location --</option>';
+  locs.forEach(l=>{ const o=document.createElement('option'); o.value=l; o.textContent=l; locSel.appendChild(o); });
+  if (curLoc) locSel.value = curLoc;
+
+  const avail = getAvailableEquipment();
+  const cats = get('categories',[]);
+  const itemSel = document.getElementById('prep-item-sel');
+  itemSel.innerHTML = '<option value="">-- Choose item --</option>';
+  cats.forEach(cat=>{
+    const items = avail.filter(e=>e.category===cat);
+    if (!items.length) return;
+    const grp = document.createElement('optgroup'); grp.label=cat;
+    items.forEach(e=>{ const o=document.createElement('option'); o.value=e.id; o.textContent=e.name+' ['+e.id+']'; grp.appendChild(o); });
+    itemSel.appendChild(grp);
+  });
+  const uncatItems = avail.filter(e=>!cats.includes(e.category));
+  if (uncatItems.length) {
+    const grp=document.createElement('optgroup'); grp.label='Other';
+    uncatItems.forEach(e=>{ const o=document.createElement('option'); o.value=e.id; o.textContent=e.name+' ['+e.id+']'; grp.appendChild(o); });
+    itemSel.appendChild(grp);
+  }
+}
+
+function prepPickItem() {
+  const v = document.getElementById('prep-item-sel').value;
+  if (v) document.getElementById('prep-scan').value = v;
+}
+
+// ═══════════════════════════════════
+// PREP — ADD / RENDER
+// ═══════════════════════════════════
+function prepAdd() {
+  const loc = document.getElementById('prep-loc').value;
+  const raw = document.getElementById('prep-scan').value.trim();
+  const al = document.getElementById('prep-alert');
+  if (!loc) { showAlert(al,'error','Please choose a delivery location first.'); return; }
+  if (!raw) { showAlert(al,'error','Please scan or enter an item ID.'); return; }
+  const eq = get('equipment',[]);
+  const found = eq.find(e=>e.id.toLowerCase()===raw.toLowerCase()||e.name.toLowerCase()===raw.toLowerCase());
+  if (!found) { showAlert(al,'error','"'+raw+'" not found in inventory.'); return; }
+  if (prepItems.find(i=>i.id===found.id)) { showAlert(al,'warning',found.name+' already in manifest.'); return; }
+  prepItems.push({id:found.id,name:found.name,category:found.category,location:loc,status:'packed',time:nowISO(),deliveredAt:'',pickedUpAt:'',bundleParent:'',bundleContents:[],kitchenConfirmed:false});
+  document.getElementById('prep-scan').value='';
+  document.getElementById('prep-item-sel').value='';
+  showAlert(al,'success','✅ '+found.name+' → '+loc);
+  renderPrepSelects();
+  renderPrepGroups();
+}
+
+function renderPrepGroups() {
+  const container = document.getElementById('prep-groups');
+  if (!prepItems.length) {
+    container.innerHTML='<div class="empty-state"><div class="emoji">📭</div>No items added yet</div>';
+    return;
+  }
+
+  const byLoc = {};
+  prepItems.forEach(item=>{ if(!byLoc[item.location]) byLoc[item.location]=[]; byLoc[item.location].push(item); });
+
+  let html = Object.entries(byLoc).map(([loc,items])=>{
+    // Bundleable items for THIS location only (not bundle contents, not already containers)
+    const bundleable = items.filter(i=>!i.bundleParent && i.bundleContents.length===0);
+    const showBundle = bundleable.length >= 2;
+
+    const itemsHtml = items.map(item=>{
+      const isContainer = item.bundleContents && item.bundleContents.length>0;
+      const isContent = !!item.bundleParent;
+      const containerName = isContent ? (prepItems.find(p=>p.id===item.bundleParent)||{}).name||item.bundleParent : '';
+      return '<div class="loc-item-row" style="'+(isContent?'padding-left:28px;background:var(--primary-light);':'')+'">'
+        +'<div>'
+        +'<div class="loc-item-name">'
+        +(isContent?'└ ':'')+item.name
+        +(isContainer?' <span class="bundle-badge">📦 Bundle ('+item.bundleContents.length+')</span>':'')
+        +(isContent?' <span style="font-size:10px;color:var(--muted);">in '+containerName+'</span>':'')
+        +'</div>'
+        +'<div class="loc-item-id">'+item.id+'</div>'
+        +'</div>'
+        +(!isContent?'<button class="loc-item-remove" onclick="removePrepItem(\''+item.id+'\')">✕</button>':'')
+        +'</div>';
+    }).join('');
+
+    // Per-location bundle section
+    const bundleHtml = showBundle ? renderLocBundleSection(loc, bundleable, items) : '';
+
+    return '<div class="loc-group">'
+      +'<div class="loc-group-hdr">'
+      +'<div class="loc-group-name">📍 '+loc+'</div>'
+      +'<div class="loc-group-meta">'+items.length+' item'+(items.length!==1?'s':'')+'</div>'
+      +'</div>'
+      +itemsHtml
+      +'</div>'
+      +bundleHtml;
+  }).join('');
+
+  container.innerHTML = html;
+}
+
+// Per-location bundle section (only shows items from that location)
+const locBundleChecked = {}; // loc -> Set of checked ids
+
+function renderLocBundleSection(loc, bundleable, allLocItems) {
+  if (!locBundleChecked[loc]) locBundleChecked[loc] = new Set();
+  const checked = locBundleChecked[loc];
+
+  const checklistHtml = bundleable.map(item=>
+    '<div class="bundle-select-row" onclick="toggleLocBundle(\''+loc+'\',\''+item.id+'\')">'
+    +'<div class="bundle-cb '+(checked.has(item.id)?'checked':'')+'">'+( checked.has(item.id)?'✓':'')+'</div>'
+    +'<div>'
+    +'<div style="font-weight:700;font-size:13px;">'+item.name+'<span class="bundle-tag">'+item.id+'</span></div>'
+    +'</div>'
+    +'</div>'
+  ).join('');
+
+  const containerOpts = '<option value="">-- Select container --</option>'
+    + allLocItems.map(e=>'<option value="'+e.id+'">'+e.name+' ['+e.id+']</option>').join('');
+
+  return '<div class="bundle-section">'
+    +'<div class="bundle-section-hdr">📦 Bundle Items for '+loc+'</div>'
+    +'<div class="bundle-inner">'
+    +'<p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Check items to pack together, then select the container.</p>'
+    +checklistHtml
+    +'<label style="margin-top:10px;">Container / Parent Item</label>'
+    +'<select id="bundle-container-'+loc.replace(/\s/g,'_')+'" style="margin-bottom:8px;">'+containerOpts+'</select>'
+    +'<button class="btn btn-accent btn-sm" style="width:100%;margin-top:4px;" onclick="createBundle(\''+loc+'\')">📦 Pack Selected into Container</button>'
+    +'</div>'
+    +'</div>';
+}
+
+function toggleLocBundle(loc, id) {
+  if (!locBundleChecked[loc]) locBundleChecked[loc] = new Set();
+  const s = locBundleChecked[loc];
+  if (s.has(id)) s.delete(id); else s.add(id);
+  renderPrepGroups();
+}
+
+function createBundle(loc) {
+  const al = document.getElementById('prep-alert');
+  const sel = document.getElementById('bundle-container-'+loc.replace(/\s/g,'_'));
+  if (!sel) return;
+  const containerId = sel.value;
+  if (!containerId) { showAlert(al,'error','Please select a container.'); return; }
+  const checked = locBundleChecked[loc] || new Set();
+  if (checked.size===0) { showAlert(al,'error','Please check at least one item to bundle.'); return; }
+  if (checked.has(containerId)) { showAlert(al,'error','The container cannot be one of the bundled items.'); return; }
+
+  const container = prepItems.find(i=>i.id===containerId);
+  if (!container) return;
+
+  checked.forEach(id=>{
+    const item = prepItems.find(i=>i.id===id);
+    if (item && item.location===loc) {
+      item.bundleParent = containerId;
+      container.bundleContents.push(id);
+    }
+  });
+
+  if (locBundleChecked[loc]) locBundleChecked[loc].clear();
+  showAlert(al,'success','✅ Items bundled into '+container.name);
+  renderPrepSelects();
+  renderPrepGroups();
+}
+
+function removePrepItem(id) {
+  const item = prepItems.find(i=>i.id===id);
+  if (!item) return;
+  if (item.bundleContents && item.bundleContents.length) {
+    item.bundleContents.forEach(cid=>{ const ch=prepItems.find(i=>i.id===cid); if(ch) ch.bundleParent=''; });
+  }
+  prepItems = prepItems.filter(i=>i.id!==id && i.bundleParent!==id);
+  renderPrepSelects();
+  renderPrepGroups();
+}
+
+async function saveManifest() {
+  const al = document.getElementById('prep-alert');
+  if (!prepItems.length) { showAlert(al,'error','No items to save.'); return; }
+  const btn = document.getElementById('prep-save-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Syncing...';
+  setSyncStatus('prep-dot','prep-status','yellow','Syncing...');
+  try {
+    const now = nowISO();
+    // Update local equipment to packed status at destination
+    const eq=get('equipment',[]);
+    prepItems.forEach(pi=>{
+      const e=eq.find(x=>x.id===pi.id);
+      if(e){ e.location=pi.location; e.status='packed'; e.lastUpdated=now; }
+    });
+    set('equipment',eq);
+    set('manifest',prepItems);
+
+    // Push location updates — one row per item updated in place on Equipment sheet
+    const updates = prepItems.map(pi=>({
+      id:pi.id, name:pi.name, category:pi.category,
+      location:pi.location, status:'packed', time:pi.time,
+      deliveredAt:'', pickedUpAt:'', returnedAt:'',
+      notes:(eq.find(x=>x.id===pi.id)||{}).notes||''
+    }));
+    await pushLocationUpdates(updates);
+
+    // Append to local history log
+    const hist=get('item_history',[]);
+    prepItems.forEach(pi=>hist.push({...pi,date:new Date().toLocaleDateString('en-CA'),bundleContents:pi.bundleContents}));
+    set('item_history',hist);
+
+    const t=new Date().toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
+    setSyncStatus('prep-dot','prep-status','green','Synced '+prepItems.length+' items · '+t);
+    showAlert(al,'success','✅ Manifest synced! '+prepItems.length+' items across '+[...new Set(prepItems.map(i=>i.location))].length+' location(s).');
+  } catch {
+    setSyncStatus('prep-dot','prep-status','red','Sync failed');
+    showAlert(al,'error','❌ Sync failed. Check internet connection.');
+  }
+  btn.disabled=false; btn.innerHTML='☁️ Save & Sync to Google Sheet';
+}
+
+function clearPrep() {
+  if (!confirm('Clear all prep items?')) return;
+  prepItems=[];
+  Object.keys(locBundleChecked).forEach(k=>locBundleChecked[k].clear());
+  renderPrepSelects(); renderPrepGroups();
+}
+
+// ═══════════════════════════════════
+// LOAD MANIFEST
+// ═══════════════════════════════════
+async function loadManifest() {
+  const al = document.getElementById('driver-alert');
+  const btn = document.getElementById('load-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Loading...';
+  setSyncStatus('driver-dot','driver-status','yellow','Loading...');
+  try {
+    // First sync equipment from sheet to get latest locations
+    const data = await pullSheets();
+    if (data.equipment && data.equipment.length) {
+      const sheetEq = data.equipment.filter(e=>e.id&&e.id!=='id');
+      const localEq = get('equipment',[]);
+      sheetEq.forEach(se=>{
+        const local = localEq.find(le=>le.id===String(se.id));
+        if (local) { local.location=se.location||'Kitchen'; local.status=se.status||'available'; }
+      });
+      set('equipment', localEq);
+    }
+
+    // Load today's manifest from local storage (built by prep)
+    const rows = get('manifest',[]);
+    if (!rows.length) {
+      showAlert(al,'warning','⚠️ No manifest found. Ask prep team to sync first.');
+      setSyncStatus('driver-dot','driver-status','red','No data');
+    } else {
+      driverManifest = rows.map(r=>({...r,
+        bundleContents: Array.isArray(r.bundleContents)?r.bundleContents:(typeof r.bundleContents==='string'?JSON.parse(r.bundleContents||'[]'):[]),
+        kitchenConfirmed: false
+      }));
+      kitchenChecked.clear();
+      const t=new Date().toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
+      setSyncStatus('driver-dot','driver-status','green','Loaded '+rows.length+' items · '+t);
+      showAlert(al,'success','✅ Loaded '+rows.length+' items. Proceed to Kitchen Check.');
+      setTimeout(()=>goToStage(2), 1200);
+    }
+  } catch {
+    setSyncStatus('driver-dot','driver-status','red','Load failed');
+    showAlert(al,'error','❌ Load failed. Check connection.');
+  }
+  btn.disabled=false; btn.innerHTML='📂 Load from Google Sheet';
+}
+
+// ═══════════════════════════════════
+// KITCHEN CHECK (Stage 2)
+// ═══════════════════════════════════
+function renderKitchenCheck() {
+  const container = document.getElementById('kchk-groups');
+  // Only top-level items (not bundle contents — they're covered by scanning the container)
+  const topLevel = driverManifest.filter(i=>!i.bundleParent);
+  const byLoc = {};
+  topLevel.forEach(item=>{ if(!byLoc[item.location]) byLoc[item.location]=[]; byLoc[item.location].push(item); });
+
+  const allDone = topLevel.every(i=>kitchenChecked.has(i.id));
+  document.getElementById('kchk-footer').style.display = allDone ? 'block' : 'none';
+
+  container.innerHTML = Object.entries(byLoc).map(([loc,items])=>{
+    const doneCount = items.filter(i=>kitchenChecked.has(i.id)).length;
+    const locDone = doneCount===items.length;
+    return '<div class="kchk-group">'
+      +'<div class="kchk-group-hdr '+(locDone?'done':'pending')+'">'
+      +'<div class="kchk-group-name">📍 '+loc+'</div>'
+      +'<div class="kchk-group-meta">'+doneCount+'/'+items.length+' confirmed</div>'
+      +'</div>'
+      +'<div class="kchk-items">'
+      +items.map(item=>{
+        const isBundle = item.bundleContents && item.bundleContents.length>0;
+        const contents = isBundle ? item.bundleContents.map(cid=>driverManifest.find(x=>x.id===cid)).filter(Boolean) : [];
+        const confirmed = kitchenChecked.has(item.id);
+        return '<div class="chk-item kchk '+(confirmed?'done':'')+'" onclick="kchkToggle(\''+item.id+'\')">'
+          +'<div class="chk-box">'+(confirmed?'✓':'')+'</div>'
+          +'<div style="flex:1;">'
+          +'<div class="chk-name">'+item.name+' <span class="tag">'+item.id+'</span>'
+          +(isBundle?' <span class="bundle-badge">📦 '+contents.length+' items inside</span>':'')
+          +'</div>'
+          +(isBundle&&contents.length?'<div class="chk-meta">Contains: '+contents.map(c=>c.name).join(', ')+'</div>':'')
+          +(confirmed?'<div class="chk-stamp purple">✅ Confirmed loaded</div>':'<div class="chk-meta">Tap or scan to confirm</div>')
+          +'</div>'
+          +'</div>';
+      }).join('')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function kchkToggle(id) {
+  if (kitchenChecked.has(id)) kitchenChecked.delete(id);
+  else kitchenChecked.add(id);
+  renderKitchenCheck();
+}
+
+function kchkScan() {
+  const input = document.getElementById('kchk-scan').value.trim();
+  const al = document.getElementById('kchk-alert');
+  if (!input) return;
+  document.getElementById('kchk-scan').value='';
+
+  const found = driverManifest.find(m=>
+    m.id.toLowerCase()===input.toLowerCase() || m.name.toLowerCase()===input.toLowerCase()
+  );
+  if (!found) { showAlert(al,'error','❌ "'+input+'" not in today\'s manifest.'); return; }
+  if (found.bundleParent) {
+    // Scanning a bundle content — check off its container
+    const container = driverManifest.find(x=>x.id===found.bundleParent);
+    if (container && !kitchenChecked.has(container.id)) {
+      kitchenChecked.add(container.id);
+      showAlert(al,'success','✅ '+found.name+' found — confirmed '+container.name+' (bundle) is loaded.');
+    } else {
+      showAlert(al,'info','ℹ️ '+found.name+' is inside '+( container?container.name:found.bundleParent)+' which is already confirmed.');
+    }
+  } else {
+    kitchenChecked.add(found.id);
+    showAlert(al,'success','✅ '+found.name+' confirmed loaded for '+found.location+'.');
+  }
+  renderKitchenCheck();
+}
+
+// ═══════════════════════════════════
+// DRIVER DELIVER (Stage 3)
+// ═══════════════════════════════════
+function getPrevItemsAtLocation(loc) {
+  // Use equipment as source of truth — items at this location that were
+  // delivered on a PREVIOUS round (not in today's current manifest)
+  const eq = get('equipment',[]);
+  const currentManifestIds = new Set(driverManifest.map(i=>i.id));
+  const result = [];
+  eq.forEach(e => {
+    // Item is at this location, not in current manifest, not in kitchen, not in transit
+    if (e.location === loc &&
+        !currentManifestIds.has(e.id) &&
+        e.location !== 'Kitchen' &&
+        e.location !== 'In Transit' &&
+        e.status !== 'returned' &&
+        e.status !== 'available') {
+      result.push({
+        id: e.id,
+        name: e.name,
+        category: e.category,
+        location: e.location,
+        date: e.lastUpdated ? new Date(e.lastUpdated).toLocaleDateString('en-CA') : 'prev. visit',
+        pickedUpAt: e.pickedUpAt || '',
+        status: e.status
+      });
+    }
+  });
+  return result;
+}
+
+function getLocationState(loc) {
+  const pr = get('pickup_requests',[]);
+  const isPickupOnly = pr.some(r=>r.location===loc&&!r.cancelled);
+  if (isPickupOnly) return 'pickup-only';
+  const locItems = driverManifest.filter(i=>i.location===loc&&!i.bundleParent);
+  if (!locItems.length) return 'empty';
+  const allDelivered = locItems.every(i=>i.status==='delivered');
+  const prevItems = getPrevItemsAtLocation(loc);
+  const allPickedUp = !prevItems.length || prevItems.every(i=>i.pickedUpAt);
+  if (allDelivered && allPickedUp) return 'complete';
+  return 'dropoff';
+}
+
+function renderDriverLocations() {
+  const container = document.getElementById('driver-locations');
+  const footer = document.getElementById('driver-footer');
+  const pr = get('pickup_requests',[]).filter(r=>!r.cancelled);
+  const manifestLocs = [...new Set(driverManifest.filter(i=>!i.bundleParent).map(i=>i.location))];
+  const pickupOnlyLocs = pr.map(r=>r.location).filter(l=>!manifestLocs.includes(l));
+  const allLocs = [...manifestLocs,...pickupOnlyLocs];
+
+  if (!allLocs.length) { container.innerHTML=''; footer.style.display='none'; return; }
+
+  const hasPickups = get('item_history',[]).some(h=>h.pickedUpAt&&!h.returnedAt);
+  // Also show footer when all delivery locations are complete (even with no pickups)
+  const allLocsComplete = allLocs.length > 0 && allLocs.every(loc => getLocationState(loc) === 'complete' || getLocationState(loc) === 'pickup-only');
+  footer.style.display = (hasPickups || allLocsComplete) ? 'block' : 'none';
+
+  container.innerHTML = allLocs.map(loc=>{
+    const state = getLocationState(loc);
+    const isPickupOnly = state==='pickup-only';
+    const isComplete = state==='complete';
+    const isExpanded = expandedLocs.has(loc);
+    const hdrClass = isPickupOnly?'dloc-hdr-orange':isComplete?'dloc-hdr-green':'dloc-hdr-blue';
+    const cardClass = isPickupOnly?'pickup-only':isComplete?'complete':'';
+    const deliveredCount = driverManifest.filter(i=>i.location===loc&&!i.bundleParent&&i.status==='delivered').length;
+    const totalCount = driverManifest.filter(i=>i.location===loc&&!i.bundleParent).length;
+    const prevItems = getPrevItemsAtLocation(loc);
+
+    const metaText = isPickupOnly
+      ? 'Pickup only · '+prevItems.length+' item'+(prevItems.length!==1?'s':'')
+      : isComplete ? '✅ Complete'
+      : deliveredCount+'/'+totalCount+' delivered'+(prevItems.length?' · '+prevItems.length+' to pick up':'');
+
+    const closeBtn = '<button class="dloc-close" onclick="event.stopPropagation();closeLocation(\''+loc+'\')">✕</button>';
+    const chevron = '<span style="color:rgba(255,255,255,0.6);font-size:20px;">›</span>';
+
+    return '<div class="dloc-card '+cardClass+(isExpanded?' expanded':'')+'" id="dloc-'+loc.replace(/\s/g,'_')+'">'
+      +'<div class="dloc-hdr '+hdrClass+'" onclick="toggleLocation(\''+loc+'\')">'
+      +'<div>'
+      +'<div class="dloc-loc-name">'+(isPickupOnly?'🔄':'📍')+' '+loc+'</div>'
+      +'<div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;font-family:var(--font-head);font-weight:700;">'+metaText+'</div>'
+      +'</div>'
+      +'<div class="dloc-meta">'
+      +(isComplete?'<span style="font-size:22px;">✅</span>':'')
+      +(isExpanded?closeBtn:chevron)
+      +'</div>'
+      +'</div>'
+      +'<div class="dloc-body '+(isExpanded?'open':'')+'">'
+      +(isPickupOnly?renderPickupOnlyBody(loc):renderDropoffBody(loc))
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function toggleLocation(loc) {
+  if (expandedLocs.has(loc)) expandedLocs.delete(loc); else expandedLocs.add(loc);
+  renderDriverLocations();
+}
+function closeLocation(loc) { expandedLocs.delete(loc); renderDriverLocations(); }
+
+function renderDropoffBody(loc) {
+  const locItems = driverManifest.filter(i=>i.location===loc&&!i.bundleParent);
+  const prevItems = getPrevItemsAtLocation(loc);
+  const allDelivered = locItems.every(i=>i.status==='delivered');
+  const allPickedUp = !prevItems.length || prevItems.every(i=>i.pickedUpAt);
+
+  let html = '<div style="padding-top:8px;">';
+  html += '<div class="section-label">📦 Drop Off</div>';
+
+  html += locItems.map(item=>{
+    const isBundle = item.bundleContents && item.bundleContents.length>0;
+    const contents = isBundle ? item.bundleContents.map(cid=>driverManifest.find(x=>x.id===cid)).filter(Boolean) : [];
+    const done = item.status==='delivered';
+    return '<div class="chk-item '+(done?'done':'')+'" onclick="toggleDelivered(\''+item.id+'\')">'
+      +'<div class="chk-box">'+(done?'✓':'')+'</div>'
+      +'<div style="flex:1;">'
+      +'<div class="chk-name">'+item.name+' <span class="tag">'+item.id+'</span>'
+      +(isBundle?' <span class="bundle-badge">📦 '+contents.length+' items inside</span>':'')
+      +'</div>'
+      +(isBundle&&contents.length?'<div class="chk-meta">Contains: '+contents.map(c=>c.name).join(', ')+'</div>':'')
+      +(done&&item.deliveredAt?'<div class="chk-stamp green">✅ '+fmtTime(item.deliveredAt)+'</div>':'<div class="chk-meta">Tap or scan to confirm</div>')
+      +'</div>'
+      +'</div>';
+  }).join('');
+
+  // After all drop-offs done, show pickup section (or no-pickup notice)
+  if (allDelivered) {
+    if (prevItems.length > 0) {
+      html += '<div class="pickup-header">🔄 Previous Items to Pick Up</div>';
+      html += prevItems.map(item=>{
+        const done = !!item.pickedUpAt;
+        return '<div class="chk-item pickup-chk '+(done?'done':'')+'" onclick="togglePickedUp_driver(\''+item.id+'\',\''+loc+'\')">'
+          +'<div class="chk-box" style="border-color:var(--orange);">'+(done?'✓':'')+'</div>'
+          +'<div style="flex:1;">'
+          +'<div class="chk-name">'+item.name+' <span class="tag">'+item.id+'</span></div>'
+          +'<div class="chk-meta">Left on '+(item.date||'prev. visit')+'</div>'
+          +(done?'<div class="chk-stamp orange">🔄 Picked up '+fmtTime(item.pickedUpAt)+'</div>':'')
+          +'</div>'
+          +'</div>';
+      }).join('');
+    } else {
+      // Nothing to pick up — show a clear notice
+      html += '<div class="no-pickup-notice">✅ Nothing to pick up here — all clear!</div>';
+    }
+  }
+
+  if (allDelivered && allPickedUp) {
+    html += '<div class="complete-banner">✅ Location Complete!</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function renderPickupOnlyBody(loc) {
+  const prevItems = getPrevItemsAtLocation(loc);
+  const allPickedUp = prevItems.length && prevItems.every(i=>i.pickedUpAt);
+
+  let html = '<div style="padding-top:8px;">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+  html += '<div class="section-label" style="margin:0;">🔄 Items to Pick Up</div>';
+  html += '<button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red);" onclick="cancelPickupRequest(\''+loc+'\')">Cancel</button>';
+  html += '</div>';
+
+  if (!prevItems.length) {
+    html += '<div class="empty-state" style="padding:16px 0;"><div class="emoji">📭</div>No items recorded at this location.</div>';
+  } else {
+    html += prevItems.map(item=>{
+      const done = !!item.pickedUpAt;
+      return '<div class="chk-item pickup-chk '+(done?'done':'')+'" onclick="togglePickedUp_driver(\''+item.id+'\',\''+loc+'\')">'
+        +'<div class="chk-box" style="border-color:var(--orange);">'+(done?'✓':'')+'</div>'
+        +'<div style="flex:1;">'
+        +'<div class="chk-name">'+item.name+' <span class="tag">'+item.id+'</span></div>'
+        +'<div class="chk-meta">Left on '+(item.date||'prev. visit')+'</div>'
+        +(done?'<div class="chk-stamp orange">🔄 Picked up '+fmtTime(item.pickedUpAt)+'</div>':'')
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  if (allPickedUp) html += '<div class="complete-banner" style="background:var(--orange-light);color:var(--orange);border:1px solid #fdba74;">🔄 All Items Picked Up!</div>';
+  html += '</div>';
+  return html;
+}
+
+// ═══════════════════════════════════
+// DRIVER SCAN (Stage 3) — checks off items
+// ═══════════════════════════════════
+function driverScan() {
+  const input = document.getElementById('driver-scan').value.trim();
+  const result = document.getElementById('driver-scan-result');
+  if (!input) return;
+  document.getElementById('driver-scan').value='';
+
+  // Find in manifest (top-level or bundle container)
+  const found = driverManifest.find(m=>
+    m.id.toLowerCase()===input.toLowerCase() || m.name.toLowerCase()===input.toLowerCase()
+  );
+
+  if (found) {
+    // If it's a bundle content, redirect to container
+    const target = found.bundleParent
+      ? driverManifest.find(x=>x.id===found.bundleParent) || found
+      : found;
+
+    if (target.status!=='delivered') {
+      // Check it off
+      toggleDelivered(target.id);
+      showAlert(result,'success','✅ '+target.name+' marked as delivered to '+target.location+'.');
+    } else {
+      showAlert(result,'warning','⚠️ '+target.name+' already delivered to '+target.location+'.');
+    }
+    // Open that location
+    expandedLocs.add(target.location);
+    renderDriverLocations();
+    setTimeout(()=>{
+      const el = document.getElementById('dloc-'+target.location.replace(/\s/g,'_'));
+      if (el) el.scrollIntoView({behavior:'smooth',block:'center'});
+    },200);
+    return;
+  }
+
+  // Check history (prev pickup items)
+  const hist = get('item_history',[]);
+  const histFound = hist.find(h=>h.id.toLowerCase()===input.toLowerCase());
+  if (histFound && !histFound.pickedUpAt) {
+    // Check it off as picked up
+    togglePickedUp_driver(histFound.id, histFound.location);
+    showAlert(result,'success','🔄 '+histFound.name+' marked as picked up from '+histFound.location+'.');
+    return;
+  }
+
+  showAlert(result,'error','❌ "'+input+'" not found in today\'s manifest.');
+}
+
+function toggleDelivered(itemId) {
+  const item = driverManifest.find(m=>m.id===itemId);
+  if (!item) return;
+  item.status = item.status==='delivered'?'packed':'delivered';
+  item.deliveredAt = item.status==='delivered'?nowISO():'';
+  if (item.bundleContents && item.bundleContents.length) {
+    item.bundleContents.forEach(cid=>{
+      const ch=driverManifest.find(x=>x.id===cid);
+      if(ch){ch.status=item.status;ch.deliveredAt=item.deliveredAt;}
+    });
+  }
+  // Update local equipment location
+  const eq=get('equipment',[]);
+  if (item.status==='delivered') {
+    const e=eq.find(x=>x.id===itemId);
+    if(e){e.location=item.location;e.status='delivered';e.lastUpdated=nowISO();}
+    if(item.bundleContents) item.bundleContents.forEach(cid=>{
+      const ce=eq.find(x=>x.id===cid);
+      if(ce){ce.location=item.location;ce.status='delivered';ce.lastUpdated=nowISO();}
+    });
+  }
+  set('equipment',eq);
+
+  // Push to sheet asynchronously — don't block the UI
+  const itemsToUpdate = [item];
+  if(item.bundleContents) item.bundleContents.forEach(cid=>{
+    const ch=driverManifest.find(x=>x.id===cid); if(ch) itemsToUpdate.push(ch);
+  });
+  pushLocationUpdates(itemsToUpdate.map(i=>({
+    id:i.id, name:i.name, category:i.category,
+    location:i.location, status:i.status,
+    time:i.time, deliveredAt:i.deliveredAt||'',
+    pickedUpAt:'', returnedAt:'',
+    notes:(eq.find(x=>x.id===i.id)||{}).notes||''
+  }))).catch(()=>{}); // silent fail — backAtKitchen does a full sync anyway
+
+  renderDriverLocations();
+  updateDashStats();
+}
+
+function togglePickedUp_driver(itemId, loc) {
+  const eq = get('equipment',[]);
+  const e = eq.find(x=>x.id===itemId);
+  if (!e) return;
+
+  if (e.pickedUpAt) {
+    // Un-pick it
+    e.pickedUpAt = '';
+    e.status = 'delivered';
+    e.location = loc;
+  } else {
+    // Mark picked up
+    e.pickedUpAt = nowISO();
+    e.status = 'picked_up';
+    e.location = 'In Transit';
+  }
+  e.lastUpdated = nowISO();
+  set('equipment', eq);
+
+  // Push to sheet
+  pushLocationUpdates([{
+    id: e.id, name: e.name, category: e.category,
+    location: e.location, status: e.status,
+    time: e.lastUpdated, deliveredAt: e.deliveredAt||'',
+    pickedUpAt: e.pickedUpAt||'', returnedAt: '',
+    notes: e.notes||''
+  }]).catch(()=>{});
+
+  document.getElementById('driver-footer').style.display='block';
+  renderDriverLocations();
+}
+
+async function backAtKitchen() {
+  if (!confirm('Are you physically back at the kitchen with all picked-up items unloaded?\n\nThis will timestamp the return right now and sync to Google Sheet.')) return;
+  const btn = event.currentTarget;
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Syncing...';
+  try {
+    const now = nowISO();
+    const eq = get('equipment',[]);
+
+    // Find all items marked as picked up but not yet returned
+    const pickedUpItems = eq.filter(e=>e.status==='picked_up'||e.location==='In Transit');
+    pickedUpItems.forEach(e=>{
+      e.location='Kitchen';
+      e.status='available';
+      e.returnedAt=now;
+      e.pickedUpAt=e.pickedUpAt||now;
+      e.lastUpdated=now;
+    });
+
+    // Also mark all delivered items as confirmed at their location
+    const deliveredItems = driverManifest.filter(i=>i.status==='delivered'&&!i.bundleParent);
+    deliveredItems.forEach(i=>{
+      const e=eq.find(x=>x.id===i.id);
+      if(e){e.location=i.location;e.status='delivered';e.lastUpdated=now;}
+    });
+
+    set('equipment',eq);
+
+    // Build update list for sheet
+    const allUpdates = [
+      ...pickedUpItems.map(e=>({
+        id:e.id, name:e.name, category:e.category,
+        location:'Kitchen', status:'available',
+        time:e.time||now, deliveredAt:e.deliveredAt||'',
+        pickedUpAt:e.pickedUpAt||now, returnedAt:now,
+        notes:e.notes||''
+      })),
+      ...deliveredItems.map(i=>({
+        id:i.id, name:i.name, category:i.category,
+        location:i.location, status:'delivered',
+        time:i.time||'', deliveredAt:i.deliveredAt||'',
+        pickedUpAt:'', returnedAt:'',
+        notes:(eq.find(x=>x.id===i.id)||{}).notes||''
+      }))
+    ];
+    if (allUpdates.length) await pushLocationUpdates(allUpdates);
+
+    // Log round
+    const rounds=get('rounds',[]);
+    rounds.push({round:roundCount, items:pickedUpItems.length, returnedAt:now, deliveries:deliveredItems.length});
+    set('rounds',rounds);
+    roundCount++;
+
+    // Reset driver state for next round
+    driverManifest=[];
+    kitchenChecked.clear();
+    expandedLocs.clear();
+    set('manifest',[]);
+
+    // Reset flags
+    set('driver_left', false);
+    set('prep_was_reset', false);
+
+    setSyncStatus('driver-dot','driver-status','green','Round '+(roundCount-1)+' complete · '+fmtTime(now));
+    goToStage(1);
+
+    const ri=document.getElementById('round-indicator');
+    const rl=document.getElementById('round-label');
+    if(ri&&rl){rl.textContent='Round '+roundCount;ri.style.display='block';}
+
+    alert('✅ Round '+(roundCount-1)+' complete!\n'
+      +pickedUpItems.length+' item(s) returned to kitchen at '
+      +new Date(now).toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true})
+      +'.\n\nReady to load the next manifest.');
+
+  } catch(err) {
+    alert('❌ Sync failed. Check your internet connection and try again.');
+  }
+  btn.disabled=false; btn.innerHTML='🏠 Back at Kitchen — Sync & Start Next Run';
+}
+
+function resetPrep() {
+  if (!confirm('Clear all prep items?\n\nThis will clear your current prep list so you can start fresh.')) return;
+  prepItems=[];
+  Object.keys(locBundleChecked).forEach(k=>{if(locBundleChecked[k])locBundleChecked[k].clear();});
+  set('prep_was_reset', true);
+  renderPrepSelects();
+  renderPrepGroups();
+  showAlert(document.getElementById('prep-alert'),'success','✅ Prep cleared. Ready to build next manifest.');
+}
+
+// ═══════════════════════════════════
+// PICKUP REQUESTS
+// ═══════════════════════════════════
+function requestPickup(loc) {
+  const pr=get('pickup_requests',[]);
+  if(pr.some(r=>r.location===loc&&!r.cancelled)) return;
+  pr.push({location:loc,requestedAt:nowISO(),cancelled:false});
+  set('pickup_requests',pr);
+  renderDashboard();
+  renderDriverLocations();
+  alert('✅ Pickup requested for '+loc+'. Driver will see it on their screen.');
+}
+
+function cancelPickupRequest(loc) {
+  const pr=get('pickup_requests',[]);
+  const req=pr.find(r=>r.location===loc&&!r.cancelled);
+  if(req){req.cancelled=true;req.cancelledAt=nowISO();}
+  set('pickup_requests',pr);
+  expandedLocs.delete(loc);
+  renderDashboard();
+  renderDriverLocations();
+}
+
+// ═══════════════════════════════════
+// EQUIPMENT
+// ═══════════════════════════════════
+function renderEquipment() {
+  const eq=get('equipment',[]);
+  document.getElementById('eq-total').textContent=eq.length;
+  document.getElementById('eq-out').textContent=eq.filter(e=>e.location!=='Kitchen').length;
+  document.getElementById('eq-in').textContent=eq.filter(e=>e.location==='Kitchen').length;
+  const list=document.getElementById('equip-list');
+  if(!eq.length){list.innerHTML='<div class="empty-state"><div class="emoji">📦</div>No equipment yet.</div>';return;}
+  const cats=get('categories',[]);
+  const bycat={};
+  eq.forEach(e=>{if(!bycat[e.category])bycat[e.category]=[];bycat[e.category].push(e);});
+  list.innerHTML=Object.entries(bycat).map(([cat,items])=>
+    '<div style="padding:8px 16px 3px;font-family:var(--font-head);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border);">'+cat+'</div>'
+    +items.map(e=>
+      '<div class="equip-item" onclick="toggleEquipDetail(\''+e.id+'\')">'
+      +'<div class="equip-row">'
+      +'<div>'
+      +'<div class="equip-name">'+e.name+'</div>'
+      +'<div class="equip-id">'+e.id+'</div>'
+      +(e.location!=='Kitchen'?'<div class="equip-loc">📍 '+e.location+'</div>':'')
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:7px;">'
+      +'<span class="badge '+(e.location==='Kitchen'?'badge-green':'badge-blue')+'">'+(e.location==='Kitchen'?'Kitchen':'Out')+'</span>'
+      +'<span style="color:var(--muted);">›</span>'
+      +'</div>'
+      +'</div>'
+      +'<div class="equip-detail" id="eqd-'+e.id+'">'+(e.notes?'📋 '+e.notes:'<em style="opacity:0.6;">No specs added yet.</em>')+'</div>'
+      +'</div>'
+    ).join('')
+  ).join('');
+}
+function toggleEquipDetail(id){document.getElementById('eqd-'+id).classList.toggle('open');}
+
+// ═══════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════
+function renderDashboard() {
+  const eq = get('equipment',[]);
+  const pr = get('pickup_requests',[]);
+
+  // Build location picture from equipment — everything not in Kitchen
+  const outItems = eq.filter(e=>e.location!=='Kitchen'&&e.location!=='In Transit'&&e.location!=='');
+  const inTransit = eq.filter(e=>e.location==='In Transit');
+  const allLocs = [...new Set(outItems.map(e=>e.location))];
+
+  // Also include manifest locations for active deliveries
+  const manifest = driverManifest.length ? driverManifest : get('manifest',[]);
+  const manifestLocs = [...new Set(manifest.filter(i=>!i.bundleParent).map(i=>i.location))];
+  manifestLocs.forEach(l=>{ if(!allLocs.includes(l)) allLocs.push(l); });
+
+  const delivered = eq.filter(e=>e.status==='delivered').length;
+  document.getElementById('dash-locs').textContent=allLocs.length;
+  document.getElementById('dash-items').textContent=outItems.length+inTransit.length;
+  document.getElementById('dash-done').textContent=delivered;
+
+  const content=document.getElementById('dash-content');
+  if(!allLocs.length && !inTransit.length){
+    content.innerHTML='<div class="empty-state"><div class="emoji">📊</div>'
+      +(eq.length?'All equipment is in the Kitchen.':'Load a manifest in the Driver tab first.')
+      +'</div>';
+    return;
+  }
+
+  let html = '';
+
+  // In Transit section
+  if (inTransit.length) {
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);">'
+      +'<div style="background:var(--accent);padding:11px 16px;">'
+      +'<div style="font-family:var(--font-head);font-size:16px;font-weight:900;color:#111;">🚚 In Transit</div>'
+      +'<div style="font-size:11px;color:rgba(0,0,0,0.6);font-family:var(--font-head);font-weight:700;margin-top:2px;">Being picked up by driver</div>'
+      +'</div>'
+      +'<div style="padding:10px 16px;">'
+      +inTransit.map(e=>'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">'
+        +'<span>🔄</span><div><div style="font-weight:700;">'+e.name+' <span class="tag">'+e.id+'</span></div></div></div>'
+      ).join('')
+      +'</div></div>';
+  }
+
+  // Per-location sections
+  html += allLocs.map(loc=>{
+    const locItems = eq.filter(e=>e.location===loc);
+    const manifestItems = manifest.filter(i=>i.location===loc&&!i.bundleParent);
+    const allDelivered = manifestItems.length && manifestItems.every(i=>i.status==='delivered');
+    const hasPickupReq = pr.some(r=>r.location===loc&&!r.cancelled);
+    const prevItems = getPrevItemsAtLocation(loc);
+    const bgColor = allDelivered?'var(--green)':'var(--primary)';
+    const statusLabel = allDelivered?'✅ Delivered':manifestItems.length>0?'⏳ Pending':'📦 Items Here';
+
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);">'
+      +'<div style="background:'+bgColor+';padding:11px 16px;display:flex;align-items:center;justify-content:space-between;">'
+      +'<div>'
+      +'<div style="font-family:var(--font-head);font-size:16px;font-weight:900;color:white;">📍 '+loc+'</div>'
+      +'<div style="font-size:11px;color:rgba(255,255,255,0.75);font-family:var(--font-head);font-weight:700;margin-top:2px;">'
+      +locItems.length+' item'+(locItems.length!==1?'s':'')+' at this location'
+      +(prevItems.length?' · '+prevItems.length+' to pick up':'')
+      +'</div>'
+      +'</div>'
+      +'<span style="background:rgba(255,255,255,0.2);color:white;border-radius:20px;padding:2px 10px;font-family:var(--font-head);font-size:11px;font-weight:800;">'+statusLabel+'</span>'
+      +'</div>'
+      +'<div style="padding:10px 16px;">'
+      +locItems.map(e=>'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">'
+        +'<span>'+(e.status==='delivered'?'✅':e.status==='packed'?'📦':'📍')+'</span>'
+        +'<div><div style="font-weight:700;">'+e.name+' <span class="tag">'+e.id+'</span></div>'
+        +(e.lastUpdated?'<div style="font-size:10px;color:var(--muted);">'+e.status+' · '+fmtTime(e.lastUpdated)+'</div>':'')
+        +'</div></div>'
+      ).join('')
+      +'<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">'
+      +(!hasPickupReq&&prevItems.length?'<button class="btn btn-orange btn-sm" onclick="requestPickup(\''+loc+'\')">🔄 Request Pickup</button>':'')
+      +(hasPickupReq?'<button class="btn btn-outline btn-sm" style="color:var(--orange);border-color:var(--orange);" onclick="cancelPickupRequest(\''+loc+'\')">✕ Cancel Pickup Request</button>':'')
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+
+  content.innerHTML = html;
+}
+
+function updateDashStats() {
+  if(document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
+}
+
+function exportCSV() {
+  const manifest=driverManifest.length?driverManifest:get('manifest',[]);
+  if(!manifest.length){alert('No data yet.');return;}
+  const headers=['id','name','category','location','status','time','deliveredAt','pickedUpAt'];
+  const rows=[headers.join(','),...manifest.map(i=>headers.map(h=>'\"'+(i[h]||'').toString().replace(/\"/g,'\"\"')+'\"').join(','))];
+  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='TWL_Log_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+// ═══════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════
+function renderAdmin() {
+  const locs=get('locations',[]);
+  document.getElementById('loc-list').innerHTML=locs.length
+    ?locs.map((l,i)=>'<div class="item-pill"><div><div class="iname">📍 '+l+'</div></div><button class="iremove" onclick="removeLocation('+i+')">✕</button></div>').join('')
+    :'<div class="empty-state" style="padding:8px 0;font-size:12px;">No locations yet.</div>';
+  const cats=get('categories',[]);
+  document.getElementById('cat-list').innerHTML=cats.length
+    ?cats.map((c,i)=>'<div class="item-pill"><div><div class="iname">🏷 '+c+'</div></div><button class="iremove" onclick="removeCategory('+i+')">✕</button></div>').join('')
+    :'<div class="empty-state" style="padding:8px 0;font-size:12px;">No categories yet.</div>';
+  const sel=document.getElementById('new-eq-cat');
+  const cur=sel.value;
+  sel.innerHTML='';
+  cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  if(cur)sel.value=cur;
+}
+
+function addLocation(){const i=document.getElementById('new-loc');const v=i.value.trim();if(!v)return;const l=get('locations',[]);if(l.includes(v))return;l.push(v);set('locations',l);i.value='';renderAdmin();}
+function removeLocation(i){const l=get('locations',[]);l.splice(i,1);set('locations',l);renderAdmin();}
+function addCategory(){const i=document.getElementById('new-cat');const v=i.value.trim();if(!v)return;const c=get('categories',[]);if(c.includes(v))return;c.push(v);set('categories',c);i.value='';renderAdmin();}
+function removeCategory(i){const c=get('categories',[]);c.splice(i,1);set('categories',c);renderAdmin();}
+
+function addEquipment(){
+  const name=document.getElementById('new-eq-name').value.trim();
+  const cat=document.getElementById('new-eq-cat').value;
+  let id=document.getElementById('new-eq-id').value.trim();
+  const notes=document.getElementById('new-eq-notes').value.trim();
+  const al=document.getElementById('admin-alert');
+  if(!name){showAlert(al,'error','Please enter an item name.');return;}
+  const eq=get('equipment',[]);
+  if(!id){const prefix=cat.replace(/[^a-zA-Z]/g,'').slice(0,4).toUpperCase();id=prefix+'-'+String(eq.filter(e=>e.category===cat).length+1).padStart(3,'0');}
+  if(eq.find(e=>e.id===id)){showAlert(al,'error','ID "'+id+'" already exists.');return;}
+  const newItem={id,name,category:cat,location:'Kitchen',status:'available',notes,lastUpdated:nowISO()};
+  eq.push(newItem);
+  set('equipment',eq);
+  document.getElementById('new-eq-name').value='';
+  document.getElementById('new-eq-id').value='';
+  document.getElementById('new-eq-notes').value='';
+  showAlert(al,'info','Adding '+name+' ['+id+'] — syncing to sheet...');
+  // Push new permanent row to Equipment sheet
+  pushNewEquipment(newItem)
+    .then(()=>showAlert(al,'success','✅ '+name+' ['+id+'] added and synced to Google Sheet.'))
+    .catch(()=>showAlert(al,'warning','⚠️ Added locally but sheet sync failed. Sync manually when online.'));
+}
+
+function resetDay(){
+  if(!confirm('Reset today\'s manifest and driver progress?'))return;
+  set('manifest',[]);set('pickup_requests',[]);set('rounds',[]);
+  set('driver_left',false);set('prep_was_reset',false);
+  driverManifest=[];prepItems=[];kitchenChecked.clear();expandedLocs.clear();roundCount=1;
+  currentStage=1;
+  Object.keys(locBundleChecked).forEach(k=>{if(locBundleChecked[k])locBundleChecked[k].clear();});
+  goToStage(1);
+  renderPrepSelects();renderPrepGroups();
+  document.getElementById('driver-footer').style.display='none';
+  document.getElementById('driver-locations').innerHTML='';
+  document.getElementById('round-indicator').style.display='none';
+  const eq=get('equipment',[]);eq.forEach(e=>e.location='Kitchen');set('equipment',eq);
+  alert('Day reset complete.');
+}
+
+// ═══════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════
+function showAlert(el,type,msg){
+  el.className='alert alert-'+type+' show';el.textContent=msg;
+  setTimeout(()=>el.classList.remove('show'),5000);
+}
+
+// Enter key handlers
+document.getElementById('prep-scan').addEventListener('keydown',e=>{if(e.key==='Enter')prepAdd();});
+document.getElementById('kchk-scan').addEventListener('keydown',e=>{if(e.key==='Enter')kchkScan();});
+document.getElementById('driver-scan').addEventListener('keydown',e=>{if(e.key==='Enter')driverScan();});
+document.getElementById('new-loc').addEventListener('keydown',e=>{if(e.key==='Enter')addLocation();});
+document.getElementById('new-cat').addEventListener('keydown',e=>{if(e.key==='Enter')addCategory();});
+
+// Init — restore state on reload
+goToStage(1);
+renderPrepSelects();
+renderPrepGroups();
+// Restore round indicator if mid-day
+if (roundCount > 1) {
+  const ri = document.getElementById('round-indicator');
+  const rl = document.getElementById('round-label');
+  if (ri&&rl) { rl.textContent='Round '+roundCount; ri.style.display='block'; }
+}
+// Show last sync time if available
+const lastSync = get('last_sync','');
+if (lastSync) {
+  setSyncStatus('prep-dot','prep-status','green','Last synced · '+lastSync);
+  const status = document.getElementById('sync-all-status');
+  if (status) { status.className='alert alert-info show'; status.textContent='Last synced at '+lastSync+' — tap Sync to refresh.'; }
+}
+// Auto-sync on first open (new device or new staff)
+if (!localStorage.getItem('twl_v5_synced')) {
+  localStorage.setItem('twl_v5_synced','1');
+  syncFromSheet();
+}
+</script>
+</body>
+</html>
