@@ -1917,30 +1917,42 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ═══════════════════════════════════
-// CAMERA BARCODE SCANNING
+// CAMERA BARCODE SCANNING (ZXing — works on Safari iPhone + Chrome Android)
 // ═══════════════════════════════════
 let cameraStream = null;
 let cameraTargetInput = null;
-let barcodeDetector = null;
+let zxingReader = null;
 let cameraAnimFrame = null;
+let cameraCanvas = null;
+let cameraCtx = null;
 
-function initBarcodeDetector() {
-  if ('BarcodeDetector' in window) {
-    barcodeDetector = new BarcodeDetector({formats: [
-      'code_128','code_39','ean_13','ean_8','qr_code','upc_a','upc_e','codabar','itf'
-    ]});
+async function loadZXing() {
+  if (zxingReader) return true;
+  try {
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.20.0/zxing.min.js';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+    zxingReader = codeReader;
     return true;
+  } catch(e) {
+    return false;
   }
-  return false;
 }
 
 async function openCamera(targetInputId) {
   cameraTargetInput = targetInputId;
   const overlay = document.getElementById('camera-overlay');
   overlay.style.display = 'flex';
+  document.getElementById('camera-status').textContent = 'Loading scanner...';
 
-  if (!barcodeDetector && !initBarcodeDetector()) {
-    document.getElementById('camera-status').textContent = '⚠️ Camera scanning not supported on this browser. Use Safari on iPhone or Chrome on Android.';
+  const loaded = await loadZXing();
+  if (!loaded) {
+    document.getElementById('camera-status').textContent = '❌ Could not load scanner library. Check internet connection.';
     return;
   }
 
@@ -1950,39 +1962,61 @@ async function openCamera(targetInputId) {
     });
     const video = document.getElementById('camera-video');
     video.srcObject = cameraStream;
-    video.play();
+    await video.play();
     document.getElementById('camera-status').textContent = 'Point camera at barcode...';
-    scanFrame(video);
+
+    // Create canvas for frame capture
+    cameraCanvas = document.createElement('canvas');
+    cameraCtx = cameraCanvas.getContext('2d');
+    scanFrameZXing(video);
   } catch(err) {
-    document.getElementById('camera-status').textContent = '❌ Camera access denied. Check browser permissions.';
+    if (err.name === 'NotAllowedError') {
+      document.getElementById('camera-status').textContent = '❌ Camera access denied. Go to Settings → Safari → Camera and allow access.';
+    } else {
+      document.getElementById('camera-status').textContent = '❌ Could not start camera: ' + err.message;
+    }
   }
 }
 
-function scanFrame(video) {
-  if (!cameraStream) return;
-  barcodeDetector.detect(video).then(barcodes => {
-    if (barcodes.length > 0) {
-      const code = barcodes[0].rawValue;
+function scanFrameZXing(video) {
+  if (!cameraStream || !zxingReader) return;
+  if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+    cameraAnimFrame = requestAnimationFrame(() => scanFrameZXing(video));
+    return;
+  }
+
+  cameraCanvas.width = video.videoWidth;
+  cameraCanvas.height = video.videoHeight;
+  cameraCtx.drawImage(video, 0, 0, cameraCanvas.width, cameraCanvas.height);
+
+  const imageData = cameraCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height);
+
+  try {
+    const luminanceSource = new ZXing.RGBLuminanceSource(imageData.data, cameraCanvas.width, cameraCanvas.height);
+    const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
+    const result = new ZXing.MultiFormatReader().decode(binaryBitmap);
+
+    if (result) {
+      const code = result.getText();
       closeCamera();
       const input = document.getElementById(cameraTargetInput);
       if (input) {
         input.value = code;
-        input.dispatchEvent(new Event('input'));
-        // Trigger the appropriate add function
         if (cameraTargetInput === 'prep-scan') prepAdd();
         else if (cameraTargetInput === 'driver-scan') driverScan();
         else if (cameraTargetInput === 'kchk-scan') kchkScan();
       }
-    } else {
-      cameraAnimFrame = requestAnimationFrame(() => scanFrame(video));
+      return;
     }
-  }).catch(() => {
-    cameraAnimFrame = requestAnimationFrame(() => scanFrame(video));
-  });
+  } catch(e) {
+    // No barcode found in this frame — keep scanning
+  }
+
+  cameraAnimFrame = requestAnimationFrame(() => scanFrameZXing(video));
 }
 
 function closeCamera() {
-  if (cameraAnimFrame) cancelAnimationFrame(cameraAnimFrame);
+  if (cameraAnimFrame) { cancelAnimationFrame(cameraAnimFrame); cameraAnimFrame = null; }
   if (cameraStream) { cameraStream.getTracks().forEach(t=>t.stop()); cameraStream = null; }
   const video = document.getElementById('camera-video');
   if (video) video.srcObject = null;
