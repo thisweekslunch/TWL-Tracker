@@ -206,9 +206,71 @@ select optgroup{font-weight:700;color:var(--primary);}
 @keyframes spin{to{transform:rotate(360deg);}}
 .section-label{font-family:var(--font-head);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 0 4px;}
 .no-pickup-notice{background:var(--green-light);border:1px solid #86efac;border-radius:10px;padding:10px 14px;font-size:13px;color:var(--green);font-weight:700;margin:8px 0;text-align:center;}
+
+/* PIN SCREEN */
+.pin-overlay{position:fixed;inset:0;background:var(--primary);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.pin-logo{margin-bottom:24px;text-align:center;}
+.pin-logo .pl1{font-family:var(--font-head);font-size:13px;font-weight:700;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:1px;}
+.pin-logo .pl2{font-family:var(--font-head);font-size:32px;font-weight:900;color:white;letter-spacing:1px;}
+.pin-box{background:white;border-radius:20px;padding:28px 24px;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.pin-title{font-family:var(--font-head);font-size:16px;font-weight:800;color:var(--primary);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.pin-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:20px;}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);background:white;transition:all 0.15s;}
+.pin-dot.filled{background:var(--primary);border-color:var(--primary);}
+.pin-dot.error{background:var(--red);border-color:var(--red);}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.pin-key{height:56px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--text);cursor:pointer;transition:all 0.1s;display:flex;align-items:center;justify-content:center;}
+.pin-key:active{background:var(--primary);color:white;border-color:var(--primary);transform:scale(0.95);}
+.pin-key.del{font-size:18px;color:var(--muted);}
+.pin-error{color:var(--red);font-size:13px;font-weight:700;text-align:center;min-height:20px;margin-bottom:8px;}
+.pin-role-toggle{display:flex;gap:8px;margin-bottom:16px;}
+.pin-role-btn{flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;background:white;font-family:var(--font-head);font-size:12px;font-weight:800;color:var(--muted);cursor:pointer;text-align:center;text-transform:uppercase;}
+.pin-role-btn.active{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
 </style>
 </head>
 <body>
+
+<!-- PIN SCREEN -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-logo">
+    <div class="pl1">This Week's Lunch</div>
+    <div class="pl2">TWL Tracker</div>
+  </div>
+  <div class="pin-box">
+    <div class="pin-title">Enter PIN</div>
+    <div class="pin-sub" id="pin-sub">Select your role to continue</div>
+    <div class="pin-role-toggle">
+      <div class="pin-role-btn active" id="role-staff" onclick="selectRole('staff')">👤 Staff</div>
+      <div class="pin-role-btn" id="role-admin" onclick="selectRole('admin')">🔑 Admin</div>
+    </div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key del" onclick="pinKey('clear')">CLR</button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinKey('del')">⌫</button>
+    </div>
+    <div id="pin-loading" style="text-align:center;font-size:13px;color:var(--muted);display:none;">Loading PINs from server...</div>
+  </div>
+</div>
+
+<!-- MAIN APP (hidden until PIN entered) -->
+<div id="app-wrapper" style="display:none;">
 
 <!-- TOPBAR -->
 <div class="topbar">
@@ -421,6 +483,8 @@ select optgroup{font-weight:700;color:var(--primary);}
   </div>
 </div>
 
+</div><!-- end app-wrapper -->
+
 <script>
 // ═══════════════════════════════════
 // CONFIG & STORAGE
@@ -428,6 +492,13 @@ select optgroup{font-weight:700;color:var(--primary);}
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRvXtVQ34kU6IYqndYEhoRQtoMEmQ56ELRJguXgPp82Ggfc2obvlDk_bn27ELjcWSKmw/exec'; // Note: update if redeployed
 const get = (k,d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
 const set = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+
+// ═══════════════════════════════════
+// PIN SYSTEM
+// ═══════════════════════════════════
+let pinEntry = '';
+let pinRole = 'staff';
+let cachedPins = get('cached_pins', {staff_pin:'', admin_pin:''});
 
 if (!localStorage.getItem('twl_v5')) {
   set('locations', ['Sunshine Daycare','ABC Elementary','Northside School','Westview Centre']);
@@ -1627,27 +1698,135 @@ document.getElementById('driver-scan').addEventListener('keydown',e=>{if(e.key==
 document.getElementById('new-loc').addEventListener('keydown',e=>{if(e.key==='Enter')addLocation();});
 document.getElementById('new-cat').addEventListener('keydown',e=>{if(e.key==='Enter')addCategory();});
 
-// Init — restore state on reload
-goToStage(1);
-renderPrepSelects();
-renderPrepGroups();
-// Restore round indicator if mid-day
-if (roundCount > 1) {
-  const ri = document.getElementById('round-indicator');
-  const rl = document.getElementById('round-label');
-  if (ri&&rl) { rl.textContent='Round '+roundCount; ri.style.display='block'; }
+// Start app by loading PINs first — always fetch fresh from sheet
+sessionStorage.removeItem('twl_role'); // always require PIN on page load
+loadPins();
+
+// ═══════════════════════════════════
+// PIN FUNCTIONS
+// ═══════════════════════════════════
+function selectRole(role) {
+  pinRole = role;
+  document.getElementById('role-staff').classList.toggle('active', role==='staff');
+  document.getElementById('role-admin').classList.toggle('active', role==='admin');
+  document.getElementById('pin-sub').textContent = role==='staff' ? 'Enter staff PIN' : 'Enter admin PIN';
+  pinEntry = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
 }
-// Show last sync time if available
-const lastSync = get('last_sync','');
-if (lastSync) {
-  setSyncStatus('prep-dot','prep-status','green','Last synced · '+lastSync);
-  const status = document.getElementById('sync-all-status');
-  if (status) { status.className='alert alert-info show'; status.textContent='Last synced at '+lastSync+' — tap Sync to refresh.'; }
+
+function pinKey(key) {
+  const err = document.getElementById('pin-error');
+  err.textContent = '';
+  document.querySelectorAll('.pin-dot').forEach(d=>d.classList.remove('error'));
+  if (key==='del') { pinEntry=pinEntry.slice(0,-1); }
+  else if (key==='clear') { pinEntry=''; }
+  else if (pinEntry.length < 4) { pinEntry+=key; }
+  updatePinDots();
+  if (pinEntry.length===4) setTimeout(()=>checkPin(), 150);
 }
-// Auto-sync on first open (new device or new staff)
-if (!localStorage.getItem('twl_v5_synced')) {
-  localStorage.setItem('twl_v5_synced','1');
-  syncFromSheet();
+
+function updatePinDots() {
+  for (let i=0; i<4; i++) {
+    document.getElementById('pd'+i).classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+function checkPin() {
+  const staffPin = String(cachedPins.staff_pin||'');
+  const adminPin = String(cachedPins.admin_pin||'');
+
+  // Don't allow entry if PINs haven't loaded yet
+  if (!staffPin && !adminPin) {
+    document.getElementById('pin-error').textContent = 'PINs not loaded yet. Check connection.';
+    pinEntry = '';
+    updatePinDots();
+    return;
+  }
+
+  if (pinRole==='staff' && staffPin && pinEntry===staffPin) { unlockApp('staff'); return; }
+  if (pinRole==='admin' && adminPin && pinEntry===adminPin) { unlockApp('admin'); return; }
+
+  document.querySelectorAll('.pin-dot').forEach(d=>d.classList.add('error'));
+  document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
+  setTimeout(()=>{ pinEntry=''; updatePinDots(); document.querySelectorAll('.pin-dot').forEach(d=>d.classList.remove('error')); }, 1000);
+}
+
+function unlockApp(role) {
+  sessionStorage.setItem('twl_role', role);
+  document.getElementById('pin-overlay').style.display='none';
+  document.getElementById('app-wrapper').style.display='block';
+  const adminTab = document.querySelector('.tab-btn[onclick*="admin"]');
+  const equipTab = document.querySelector('.tab-btn[onclick*="equipment"]');
+  const dashTab = document.querySelector('.tab-btn[onclick*="dashboard"]');
+  if (role==='staff') {
+    if (adminTab) adminTab.style.display='none';
+    if (equipTab) equipTab.style.display='none';
+    if (dashTab) dashTab.style.display='none';
+  }
+  initApp();
+}
+
+async function loadPins() {
+  const loadingEl = document.getElementById('pin-loading');
+  loadingEl.style.display='block';
+  loadingEl.textContent='Loading PINs...';
+
+  // Always clear cached PINs so we never use stale ones
+  cachedPins = {staff_pin:'', admin_pin:''};
+
+  try {
+    const data = await pullSheets();
+    if (data.config && (data.config.staff_pin || data.config.admin_pin)) {
+      cachedPins = {
+        staff_pin: String(data.config.staff_pin||'').trim(),
+        admin_pin: String(data.config.admin_pin||'').trim()
+      };
+      // Save fresh PINs to cache for offline fallback
+      set('cached_pins', cachedPins);
+      loadingEl.style.display='none';
+    } else {
+      loadingEl.textContent='⚠️ PINs not found in Google Sheet Config tab. Check setup.';
+    }
+  } catch(e) {
+    // Network failed — use cached only as last resort
+    const saved = get('cached_pins', {staff_pin:'', admin_pin:''});
+    if (saved.staff_pin || saved.admin_pin) {
+      cachedPins = saved;
+      loadingEl.textContent='⚠️ Offline — using last known PINs.';
+      setTimeout(()=>loadingEl.style.display='none', 2000);
+    } else {
+      loadingEl.textContent='❌ Cannot load PINs. Check internet connection.';
+    }
+  }
+
+  const role = sessionStorage.getItem('twl_role');
+  if (role) { unlockApp(role); return; }
+  selectRole('staff');
+}
+
+// ═══════════════════════════════════
+// APP INIT — called after PIN unlock
+// ═══════════════════════════════════
+function initApp() {
+  goToStage(1);
+  renderPrepSelects();
+  renderPrepGroups();
+  if (roundCount > 1) {
+    const ri = document.getElementById('round-indicator');
+    const rl = document.getElementById('round-label');
+    if (ri&&rl) { rl.textContent='Round '+roundCount; ri.style.display='block'; }
+  }
+  const lastSync = get('last_sync','');
+  if (lastSync) {
+    setSyncStatus('prep-dot','prep-status','green','Last synced · '+lastSync);
+    const status = document.getElementById('sync-all-status');
+    if (status) { status.className='alert alert-info show'; status.textContent='Last synced at '+lastSync+' — tap Sync to refresh.'; }
+  }
+  if (!localStorage.getItem('twl_v5_synced')) {
+    localStorage.setItem('twl_v5_synced','1');
+    syncFromSheet();
+  }
 }
 </script>
 </body>
