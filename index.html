@@ -22,7 +22,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
 /* TOPBAR */
 .topbar{background:var(--primary);padding:0 16px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(26,111,181,0.3);}
 .logo-area{display:flex;align-items:center;gap:10px;}
-.logo-svg{width:44px;height:44px;flex-shrink:0;}
 .logo-text{font-family:var(--font-head);color:white;line-height:1.15;}
 .logo-text .l1{font-size:10px;font-weight:700;opacity:0.8;text-transform:uppercase;letter-spacing:1px;}
 .logo-text .l2{font-size:18px;font-weight:900;letter-spacing:0.3px;}
@@ -234,8 +233,10 @@ select optgroup{font-weight:700;color:var(--primary);}
 <!-- PIN SCREEN -->
 <div class="pin-overlay" id="pin-overlay">
   <div class="pin-logo">
-    <div class="pl1">This Week's Lunch</div>
-    <div class="pl2">TWL Tracker</div>
+    <div style="background:white;border-radius:16px;padding:12px 20px;margin-bottom:12px;display:inline-block;box-shadow:0 4px 16px rgba(0,0,0,0.2);">
+      <img src="data:image/png;base64,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" alt="This Week's Lunch" style="height:70px;width:auto;display:block;">
+    </div>
+    <div class="pl2" style="font-size:20px;">TWL Tracker</div>
   </div>
   <div class="pin-box">
     <div class="pin-title">Enter PIN</div>
@@ -275,21 +276,7 @@ select optgroup{font-weight:700;color:var(--primary);}
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="logo-area">
-    <svg class="logo-svg" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="22" cy="22" r="22" fill="white"/>
-      <ellipse cx="22" cy="26" rx="10" ry="5" fill="#1a6fb5"/>
-      <rect x="12" y="21" width="20" height="7" rx="1" fill="#1a6fb5"/>
-      <ellipse cx="22" cy="21" rx="8" ry="6" fill="white" stroke="#1a6fb5" stroke-width="1.5"/>
-      <ellipse cx="17" cy="19" rx="4" ry="5" fill="white" stroke="#1a6fb5" stroke-width="1.5"/>
-      <ellipse cx="27" cy="19" rx="4" ry="5" fill="white" stroke="#1a6fb5" stroke-width="1.5"/>
-      <ellipse cx="22" cy="17" rx="5" ry="6" fill="white" stroke="#1a6fb5" stroke-width="1.5"/>
-      <rect x="14" y="25" width="16" height="2" rx="1" fill="white" opacity="0.4"/>
-      <line x1="19" y1="29" x2="19" y2="35" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="19" y1="29" x2="18" y2="27" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
-      <line x1="19" y1="29" x2="20" y2="27" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
-      <line x1="25" y1="27" x2="25" y2="35" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M23 27 Q25 29 25 31" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-    </svg>
+    <img src="data:image/png;base64,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" alt="This Week's Lunch" style="height:48px;width:auto;">
     <div class="logo-text">
       <div class="l1">This Week's Lunch</div>
       <div class="l2">TWL Tracker</div>
@@ -331,6 +318,7 @@ select optgroup{font-weight:700;color:var(--primary);}
     <div class="scan-bar">
       <input type="text" id="prep-scan" placeholder="Scan or type ID..." autocomplete="off" autocorrect="off" autocapitalize="off">
       <button class="btn btn-primary" onclick="prepAdd()">ADD</button>
+      <button class="btn btn-outline" onclick="openCamera('prep-scan')" style="width:auto;padding:10px 12px;margin-bottom:0;" title="Scan with camera">📷</button>
     </div>
     <label>— or pick from available inventory —</label>
     <select id="prep-item-sel" onchange="prepPickItem()"><option value="">-- Choose item --</option></select>
@@ -377,6 +365,7 @@ select optgroup{font-weight:700;color:var(--primary);}
       <div class="scan-bar">
         <input type="text" id="kchk-scan" placeholder="Scan or type ID..." autocomplete="off" autocorrect="off" autocapitalize="off">
         <button class="btn btn-purple" onclick="kchkScan()">SCAN</button>
+        <button class="btn btn-outline" onclick="openCamera('kchk-scan')" style="width:auto;padding:10px 12px;margin-bottom:0;" title="Scan with camera">📷</button>
       </div>
       <div id="kchk-alert" class="alert"></div>
     </div>
@@ -398,6 +387,7 @@ select optgroup{font-weight:700;color:var(--primary);}
       <div class="scan-bar">
         <input type="text" id="driver-scan" placeholder="Scan or type ID to check off..." autocomplete="off" autocorrect="off" autocapitalize="off">
         <button class="btn btn-primary" onclick="driverScan()">SCAN</button>
+        <button class="btn btn-outline" onclick="openCamera('driver-scan')" style="width:auto;padding:10px 12px;margin-bottom:0;" title="Scan with camera">📷</button>
       </div>
       <div id="driver-scan-result" class="alert"></div>
     </div>
@@ -615,6 +605,18 @@ async function pushLocationUpdates(items) {
   return res.json();
 }
 
+// Push locations and categories to Settings sheet
+async function pushSettings() {
+  const locations = get('locations',[]);
+  const categories = get('categories',[]);
+  const res = await fetch(SCRIPT_URL, {
+    method:'POST',
+    body: JSON.stringify({action:'saveSettings', locations, categories})
+  });
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
 // Pull everything from sheet — equipment is the source of truth
 async function pullSheets() {
   const res = await fetch(SCRIPT_URL+'?t='+Date.now());
@@ -681,6 +683,22 @@ async function syncFromSheet() {
     });
 
     set('equipment', merged);
+
+    // Step 4 — Sync locations and categories
+    // Sheet wins if it has data, otherwise push local to sheet
+    if (data.locations && data.locations.length) {
+      set('locations', data.locations);
+    } else {
+      // Push local locations to sheet
+      const localLocs = get('locations',[]);
+      if (localLocs.length) pushSettings().catch(()=>{});
+    }
+    if (data.categories && data.categories.length) {
+      set('categories', data.categories);
+    } else {
+      const localCats = get('categories',[]);
+      if (localCats.length) pushSettings().catch(()=>{});
+    }
 
     const eqCount = merged.length;
     const lastSync = new Date().toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
@@ -915,6 +933,7 @@ async function saveManifest() {
     });
     set('equipment',eq);
     set('manifest',prepItems);
+    set('latest_manifest', prepItems); // persists across rounds for driver to load
 
     // Push location updates — one row per item updated in place on Equipment sheet
     const updates = prepItems.map(pi=>({
@@ -956,23 +975,30 @@ async function loadManifest() {
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Loading...';
   setSyncStatus('driver-dot','driver-status','yellow','Loading...');
   try {
-    // First sync equipment from sheet to get latest locations
+    // Pull fresh data from sheet — gets latest prep manifest AND equipment locations
     const data = await pullSheets();
+
+    // Update equipment locations from sheet
     if (data.equipment && data.equipment.length) {
       const sheetEq = data.equipment.filter(e=>e.id&&e.id!=='id');
       const localEq = get('equipment',[]);
       sheetEq.forEach(se=>{
-        const local = localEq.find(le=>le.id===String(se.id));
-        if (local) { local.location=se.location||'Kitchen'; local.status=se.status||'available'; }
+        const local = localEq.find(le=>String(le.id)===String(se.id));
+        if (local) {
+          local.location = se.location||'Kitchen';
+          local.status = se.status||'available';
+        }
       });
       set('equipment', localEq);
     }
 
-    // Load today's manifest from local storage (built by prep)
-    const rows = get('manifest',[]);
+    // Load manifest — use local first, fall back to latest_manifest if cleared after round
+    let rows = get('manifest',[]);
+    if (!rows.length) rows = get('latest_manifest',[]);
+
     if (!rows.length) {
-      showAlert(al,'warning','⚠️ No manifest found. Ask prep team to sync first.');
-      setSyncStatus('driver-dot','driver-status','red','No data');
+      showAlert(al,'warning','⚠️ No manifest found. Make sure prep has synced before loading.');
+      setSyncStatus('driver-dot','driver-status','red','No manifest');
     } else {
       driverManifest = rows.map(r=>({...r,
         bundleContents: Array.isArray(r.bundleContents)?r.bundleContents:(typeof r.bundleContents==='string'?JSON.parse(r.bundleContents||'[]'):[]),
@@ -985,8 +1011,20 @@ async function loadManifest() {
       setTimeout(()=>goToStage(2), 1200);
     }
   } catch {
-    setSyncStatus('driver-dot','driver-status','red','Load failed');
-    showAlert(al,'error','❌ Load failed. Check connection.');
+    // If network fails, fall back to local manifest
+    const rows = get('manifest',[]);
+    if (rows.length) {
+      driverManifest = rows.map(r=>({...r,
+        bundleContents: Array.isArray(r.bundleContents)?r.bundleContents:(typeof r.bundleContents==='string'?JSON.parse(r.bundleContents||'[]'):[]),
+        kitchenConfirmed: false
+      }));
+      setSyncStatus('driver-dot','driver-status','yellow','Loaded from local cache');
+      showAlert(al,'warning','⚠️ Could not reach server — loaded from local cache.');
+      setTimeout(()=>goToStage(2), 1200);
+    } else {
+      setSyncStatus('driver-dot','driver-status','red','Load failed');
+      showAlert(al,'error','❌ Load failed. Check connection.');
+    }
   }
   btn.disabled=false; btn.innerHTML='📂 Load from Google Sheet';
 }
@@ -1069,29 +1107,28 @@ function kchkScan() {
 // DRIVER DELIVER (Stage 3)
 // ═══════════════════════════════════
 function getPrevItemsAtLocation(loc) {
-  // Use equipment as source of truth — items at this location that were
-  // delivered on a PREVIOUS round (not in today's current manifest)
   const eq = get('equipment',[]);
+  // Items in today's current manifest — exclude these from pickup list
   const currentManifestIds = new Set(driverManifest.map(i=>i.id));
   const result = [];
   eq.forEach(e => {
-    // Item is at this location, not in current manifest, not in kitchen, not in transit
-    if (e.location === loc &&
-        !currentManifestIds.has(e.id) &&
-        e.location !== 'Kitchen' &&
-        e.location !== 'In Transit' &&
-        e.status !== 'returned' &&
-        e.status !== 'available') {
-      result.push({
-        id: e.id,
-        name: e.name,
-        category: e.category,
-        location: e.location,
-        date: e.lastUpdated ? new Date(e.lastUpdated).toLocaleDateString('en-CA') : 'prev. visit',
-        pickedUpAt: e.pickedUpAt || '',
-        status: e.status
-      });
-    }
+    // Must be at this location
+    if (e.location !== loc) return;
+    // Must NOT be in today's delivery manifest
+    if (currentManifestIds.has(e.id)) return;
+    // Must not be in kitchen, in transit, or already returned
+    if (e.location === 'Kitchen' || e.location === 'In Transit') return;
+    // Must have been previously delivered (status = delivered, not available/packed)
+    if (e.status === 'available' || e.status === 'packed' || e.status === 'returned') return;
+    result.push({
+      id: e.id,
+      name: e.name,
+      category: e.category,
+      location: e.location,
+      date: e.lastUpdated ? new Date(e.lastUpdated).toLocaleDateString('en-CA') : 'prev. visit',
+      pickedUpAt: e.pickedUpAt || '',
+      status: e.status
+    });
   });
   return result;
 }
@@ -1431,6 +1468,7 @@ async function backAtKitchen() {
     kitchenChecked.clear();
     expandedLocs.clear();
     set('manifest',[]);
+    set('latest_manifest',[]); // clear so next load gets fresh prep manifest
 
     // Reset flags
     set('driver_left', false);
@@ -1639,10 +1677,47 @@ function renderAdmin() {
   if(cur)sel.value=cur;
 }
 
-function addLocation(){const i=document.getElementById('new-loc');const v=i.value.trim();if(!v)return;const l=get('locations',[]);if(l.includes(v))return;l.push(v);set('locations',l);i.value='';renderAdmin();}
-function removeLocation(i){const l=get('locations',[]);l.splice(i,1);set('locations',l);renderAdmin();}
-function addCategory(){const i=document.getElementById('new-cat');const v=i.value.trim();if(!v)return;const c=get('categories',[]);if(c.includes(v))return;c.push(v);set('categories',c);i.value='';renderAdmin();}
-function removeCategory(i){const c=get('categories',[]);c.splice(i,1);set('categories',c);renderAdmin();}
+function addLocation(){
+  const i=document.getElementById('new-loc');
+  const v=i.value.trim();
+  if(!v)return;
+  const l=get('locations',[]);
+  if(l.includes(v))return;
+  l.push(v);
+  set('locations',l);
+  i.value='';
+  renderAdmin();
+  pushSettings().catch(()=>{});
+}
+
+function removeLocation(i){
+  const l=get('locations',[]);
+  l.splice(i,1);
+  set('locations',l);
+  renderAdmin();
+  pushSettings().catch(()=>{});
+}
+
+function addCategory(){
+  const i=document.getElementById('new-cat');
+  const v=i.value.trim();
+  if(!v)return;
+  const c=get('categories',[]);
+  if(c.includes(v))return;
+  c.push(v);
+  set('categories',c);
+  i.value='';
+  renderAdmin();
+  pushSettings().catch(()=>{});
+}
+
+function removeCategory(i){
+  const c=get('categories',[]);
+  c.splice(i,1);
+  set('categories',c);
+  renderAdmin();
+  pushSettings().catch(()=>{});
+}
 
 function addEquipment(){
   const name=document.getElementById('new-eq-name').value.trim();
@@ -1828,6 +1903,110 @@ function initApp() {
     syncFromSheet();
   }
 }
+
+// ═══════════════════════════════════
+// PIN KEYBOARD INPUT
+// ═══════════════════════════════════
+document.addEventListener('keydown', function(e) {
+  // Only handle key input when PIN overlay is visible
+  if (document.getElementById('pin-overlay').style.display === 'none') return;
+  if (e.key >= '0' && e.key <= '9') { pinKey(e.key); }
+  else if (e.key === 'Backspace') { pinKey('del'); }
+  else if (e.key === 'Escape') { pinKey('clear'); }
+  else if (e.key === 'Enter') { if (pinEntry.length === 4) checkPin(); }
+});
+
+// ═══════════════════════════════════
+// CAMERA BARCODE SCANNING
+// ═══════════════════════════════════
+let cameraStream = null;
+let cameraTargetInput = null;
+let barcodeDetector = null;
+let cameraAnimFrame = null;
+
+function initBarcodeDetector() {
+  if ('BarcodeDetector' in window) {
+    barcodeDetector = new BarcodeDetector({formats: [
+      'code_128','code_39','ean_13','ean_8','qr_code','upc_a','upc_e','codabar','itf'
+    ]});
+    return true;
+  }
+  return false;
+}
+
+async function openCamera(targetInputId) {
+  cameraTargetInput = targetInputId;
+  const overlay = document.getElementById('camera-overlay');
+  overlay.style.display = 'flex';
+
+  if (!barcodeDetector && !initBarcodeDetector()) {
+    document.getElementById('camera-status').textContent = '⚠️ Camera scanning not supported on this browser. Use Safari on iPhone or Chrome on Android.';
+    return;
+  }
+
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: {ideal:1280}, height: {ideal:720} }
+    });
+    const video = document.getElementById('camera-video');
+    video.srcObject = cameraStream;
+    video.play();
+    document.getElementById('camera-status').textContent = 'Point camera at barcode...';
+    scanFrame(video);
+  } catch(err) {
+    document.getElementById('camera-status').textContent = '❌ Camera access denied. Check browser permissions.';
+  }
+}
+
+function scanFrame(video) {
+  if (!cameraStream) return;
+  barcodeDetector.detect(video).then(barcodes => {
+    if (barcodes.length > 0) {
+      const code = barcodes[0].rawValue;
+      closeCamera();
+      const input = document.getElementById(cameraTargetInput);
+      if (input) {
+        input.value = code;
+        input.dispatchEvent(new Event('input'));
+        // Trigger the appropriate add function
+        if (cameraTargetInput === 'prep-scan') prepAdd();
+        else if (cameraTargetInput === 'driver-scan') driverScan();
+        else if (cameraTargetInput === 'kchk-scan') kchkScan();
+      }
+    } else {
+      cameraAnimFrame = requestAnimationFrame(() => scanFrame(video));
+    }
+  }).catch(() => {
+    cameraAnimFrame = requestAnimationFrame(() => scanFrame(video));
+  });
+}
+
+function closeCamera() {
+  if (cameraAnimFrame) cancelAnimationFrame(cameraAnimFrame);
+  if (cameraStream) { cameraStream.getTracks().forEach(t=>t.stop()); cameraStream = null; }
+  const video = document.getElementById('camera-video');
+  if (video) video.srcObject = null;
+  document.getElementById('camera-overlay').style.display = 'none';
+}
 </script>
+
+<!-- CAMERA OVERLAY -->
+<div id="camera-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:480px;background:#111;border-radius:16px;overflow:hidden;">
+    <div style="background:var(--primary);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:var(--font-head);font-size:16px;font-weight:800;color:white;">📷 Scan Barcode</div>
+      <button onclick="closeCamera()" style="background:rgba(255,255,255,0.2);border:none;color:white;font-size:18px;font-weight:700;cursor:pointer;border-radius:6px;padding:2px 10px;line-height:1.4;">✕</button>
+    </div>
+    <div style="position:relative;background:#000;aspect-ratio:4/3;">
+      <video id="camera-video" style="width:100%;height:100%;object-fit:cover;" playsinline muted></video>
+      <!-- Targeting frame -->
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+        <div style="width:60%;height:40%;border:3px solid var(--accent);border-radius:8px;box-shadow:0 0 0 2000px rgba(0,0,0,0.4);"></div>
+      </div>
+    </div>
+    <div id="camera-status" style="padding:14px 16px;font-size:13px;color:rgba(255,255,255,0.75);text-align:center;font-family:var(--font-head);font-weight:600;">Initialising camera...</div>
+  </div>
+</div>
+
 </body>
 </html>
