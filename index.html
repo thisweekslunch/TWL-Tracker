@@ -406,11 +406,19 @@ select optgroup{font-weight:700;color:var(--primary);}
 <!-- ═══════════ EQUIPMENT -->
 <div class="view" id="view-equipment">
   <div class="page-title">🔧 Equipment</div>
-  <div class="page-sub">Tap any item to see specs. All tracked items and locations.</div>
+  <div class="page-sub">Search or scan to find an item. Tap to see details.</div>
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="eq-total">0</div><div class="stat-label">Total</div></div>
     <div class="stat-card"><div class="stat-num" id="eq-out">0</div><div class="stat-label">Out</div></div>
     <div class="stat-card"><div class="stat-num" id="eq-in">0</div><div class="stat-label">In Kitchen</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🔍 Search Equipment</div>
+    <div class="scan-bar">
+      <input type="text" id="eq-search" placeholder="Type name, ID or scan barcode..." autocomplete="off" autocorrect="off" autocapitalize="off" oninput="renderEquipment()">
+      <button class="btn btn-outline" onclick="openCamera('eq-search')" style="width:auto;padding:10px 12px;margin-bottom:0;" title="Scan with camera">📷</button>
+      <button class="btn btn-outline" onclick="document.getElementById('eq-search').value='';renderEquipment();" style="width:auto;padding:10px 12px;margin-bottom:0;">✕</button>
+    </div>
   </div>
   <div class="card" style="padding:0;overflow:hidden;"><div id="equip-list"></div></div>
 </div>
@@ -459,7 +467,10 @@ select optgroup{font-weight:700;color:var(--primary);}
       <div><label>Category</label><select id="new-eq-cat"></select></div>
     </div>
     <label>Barcode / ID (blank = auto)</label>
-    <input type="text" id="new-eq-id" placeholder="e.g. COOL-004">
+    <div class="scan-bar" style="margin-bottom:12px;">
+      <input type="text" id="new-eq-id" placeholder="e.g. COOL-004" style="margin-bottom:0;">
+      <button class="btn btn-outline" onclick="openCamera('new-eq-id')" style="width:auto;padding:10px 12px;margin-bottom:0;" title="Scan barcode">📷</button>
+    </div>
     <label>Notes / Specs</label>
     <input type="text" id="new-eq-notes" placeholder="e.g. Holds 100 × 12oz cups, max 15kg">
     <button class="btn btn-primary" onclick="addEquipment()">➕ Add to Inventory</button>
@@ -785,7 +796,7 @@ function prepAdd() {
   const found = eq.find(e=>e.id.toLowerCase()===raw.toLowerCase()||e.name.toLowerCase()===raw.toLowerCase());
   if (!found) { showAlert(al,'error','"'+raw+'" not found in inventory.'); return; }
   if (prepItems.find(i=>i.id===found.id)) { showAlert(al,'warning',found.name+' already in manifest.'); return; }
-  prepItems.push({id:found.id,name:found.name,category:found.category,location:loc,status:'packed',time:nowISO(),deliveredAt:'',pickedUpAt:'',bundleParent:'',bundleContents:[],kitchenConfirmed:false});
+  prepItems.push({id:found.id,name:found.name,category:found.category,location:loc,status:'packed',time:nowISO(),deliveredAt:'',pickedUpAt:'',bundleParent:'',bundleContents:[],kitchenConfirmed:false,synced:false});
   document.getElementById('prep-scan').value='';
   document.getElementById('prep-item-sel').value='';
   showAlert(al,'success','✅ '+found.name+' → '+loc);
@@ -812,12 +823,14 @@ function renderPrepGroups() {
       const isContainer = item.bundleContents && item.bundleContents.length>0;
       const isContent = !!item.bundleParent;
       const containerName = isContent ? (prepItems.find(p=>p.id===item.bundleParent)||{}).name||item.bundleParent : '';
+      const syncedBadge = item.synced ? '<span style="background:var(--orange-light);color:var(--orange);border:1px solid #fdba74;border-radius:4px;font-size:10px;font-weight:800;padding:1px 6px;font-family:var(--font-head);margin-left:6px;">⏳ Waiting for Driver</span>' : '';
       return '<div class="loc-item-row" style="'+(isContent?'padding-left:28px;background:var(--primary-light);':'')+'">'
         +'<div>'
         +'<div class="loc-item-name">'
         +(isContent?'└ ':'')+item.name
         +(isContainer?' <span class="bundle-badge">📦 Bundle ('+item.bundleContents.length+')</span>':'')
         +(isContent?' <span style="font-size:10px;color:var(--muted);">in '+containerName+'</span>':'')
+        +(!isContent?syncedBadge:'')
         +'</div>'
         +'<div class="loc-item-id">'+item.id+'</div>'
         +'</div>'
@@ -828,10 +841,11 @@ function renderPrepGroups() {
     // Per-location bundle section
     const bundleHtml = showBundle ? renderLocBundleSection(loc, bundleable, items) : '';
 
+    const allSynced = items.every(i=>i.synced);
     return '<div class="loc-group">'
-      +'<div class="loc-group-hdr">'
+      +'<div class="loc-group-hdr" style="'+(allSynced?'background:var(--primary-dark);':'')+'">'
       +'<div class="loc-group-name">📍 '+loc+'</div>'
-      +'<div class="loc-group-meta">'+items.length+' item'+(items.length!==1?'s':'')+'</div>'
+      +'<div class="loc-group-meta">'+(allSynced?'⏳ Synced — waiting for driver · ':'')+items.length+' item'+(items.length!==1?'s':'')+'</div>'
       +'</div>'
       +itemsHtml
       +'</div>'
@@ -925,6 +939,8 @@ async function saveManifest() {
   setSyncStatus('prep-dot','prep-status','yellow','Syncing...');
   try {
     const now = nowISO();
+    // Mark all items as synced
+    prepItems.forEach(pi => pi.synced = true);
     // Update local equipment to packed status at destination
     const eq=get('equipment',[]);
     prepItems.forEach(pi=>{
@@ -1529,36 +1545,70 @@ function cancelPickupRequest(loc) {
 // EQUIPMENT
 // ═══════════════════════════════════
 function renderEquipment() {
-  const eq=get('equipment',[]);
-  document.getElementById('eq-total').textContent=eq.length;
-  document.getElementById('eq-out').textContent=eq.filter(e=>e.location!=='Kitchen').length;
-  document.getElementById('eq-in').textContent=eq.filter(e=>e.location==='Kitchen').length;
-  const list=document.getElementById('equip-list');
-  if(!eq.length){list.innerHTML='<div class="empty-state"><div class="emoji">📦</div>No equipment yet.</div>';return;}
-  const cats=get('categories',[]);
-  const bycat={};
-  eq.forEach(e=>{if(!bycat[e.category])bycat[e.category]=[];bycat[e.category].push(e);});
-  list.innerHTML=Object.entries(bycat).map(([cat,items])=>
+  const eq = get('equipment',[]);
+  document.getElementById('eq-total').textContent = eq.length;
+  document.getElementById('eq-out').textContent = eq.filter(e=>e.location!=='Kitchen').length;
+  document.getElementById('eq-in').textContent = eq.filter(e=>e.location==='Kitchen').length;
+
+  const searchEl = document.getElementById('eq-search');
+  const query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+
+  const list = document.getElementById('equip-list');
+  if (!eq.length) { list.innerHTML='<div class="empty-state"><div class="emoji">📦</div>No equipment yet.</div>'; return; }
+
+  // Filter by search query
+  const filtered = query
+    ? eq.filter(e =>
+        e.id.toLowerCase().includes(query) ||
+        e.name.toLowerCase().includes(query) ||
+        e.category.toLowerCase().includes(query) ||
+        (e.location||'').toLowerCase().includes(query)
+      )
+    : eq;
+
+  if (!filtered.length) {
+    list.innerHTML='<div class="empty-state"><div class="emoji">🔍</div>No items match "'+query+'"</div>';
+    return;
+  }
+
+  const cats = get('categories',[]);
+  const bycat = {};
+  filtered.forEach(e=>{ if(!bycat[e.category]) bycat[e.category]=[]; bycat[e.category].push(e); });
+
+  list.innerHTML = Object.entries(bycat).map(([cat,items])=>
     '<div style="padding:8px 16px 3px;font-family:var(--font-head);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border);">'+cat+'</div>'
-    +items.map(e=>
-      '<div class="equip-item" onclick="toggleEquipDetail(\''+e.id+'\')">'
-      +'<div class="equip-row">'
-      +'<div>'
-      +'<div class="equip-name">'+e.name+'</div>'
-      +'<div class="equip-id">'+e.id+'</div>'
-      +(e.location!=='Kitchen'?'<div class="equip-loc">📍 '+e.location+'</div>':'')
-      +'</div>'
-      +'<div style="display:flex;align-items:center;gap:7px;">'
-      +'<span class="badge '+(e.location==='Kitchen'?'badge-green':'badge-blue')+'">'+(e.location==='Kitchen'?'Kitchen':'Out')+'</span>'
-      +'<span style="color:var(--muted);">›</span>'
-      +'</div>'
-      +'</div>'
-      +'<div class="equip-detail" id="eqd-'+e.id+'">'+(e.notes?'📋 '+e.notes:'<em style="opacity:0.6;">No specs added yet.</em>')+'</div>'
-      +'</div>'
-    ).join('')
+    +items.map(e=>{
+      // Auto-expand if it matches search query exactly
+      const isExactMatch = query && (e.id.toLowerCase()===query || e.name.toLowerCase()===query);
+      return '<div class="equip-item" onclick="toggleEquipDetail(\''+e.id+'\')">'
+        +'<div class="equip-row">'
+        +'<div>'
+        +'<div class="equip-name">'+e.name+'</div>'
+        +'<div class="equip-id">'+e.id+'</div>'
+        +(e.location!=='Kitchen'?'<div class="equip-loc">📍 '+e.location+'</div>':'')
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:7px;">'
+        +'<span class="badge '+(e.location==='Kitchen'?'badge-green':'badge-blue')+'">'+(e.location==='Kitchen'?'Kitchen':'Out')+'</span>'
+        +'<span style="color:var(--muted);">›</span>'
+        +'</div>'
+        +'</div>'
+        +'<div class="equip-detail'+(isExactMatch?' open':'')+'" id="eqd-'+e.id+'">'+(e.notes?'📋 '+e.notes:'<em style="opacity:0.6;">No specs added yet.</em>')+'</div>'
+        +'</div>';
+    }).join('')
   ).join('');
+
+  // If exact match, scroll to it
+  if (query && filtered.length === 1) {
+    setTimeout(()=>{
+      const el = document.getElementById('eqd-'+filtered[0].id);
+      if (el) el.closest('.equip-item').scrollIntoView({behavior:'smooth',block:'center'});
+    }, 100);
+  }
 }
-function toggleEquipDetail(id){document.getElementById('eqd-'+id).classList.toggle('open');}
+function toggleEquipDetail(id){
+  const el = document.getElementById('eqd-'+id);
+  if (el) el.classList.toggle('open');
+}
 
 // ═══════════════════════════════════
 // DASHBOARD
@@ -1974,6 +2024,8 @@ async function openCamera(targetInputId) {
             if (cameraTargetInput === 'prep-scan') prepAdd();
             else if (cameraTargetInput === 'driver-scan') driverScan();
             else if (cameraTargetInput === 'kchk-scan') kchkScan();
+            else if (cameraTargetInput === 'eq-search') renderEquipment();
+            else if (cameraTargetInput === 'new-eq-id') {} // just fills the field
           }
         }
         // err is normal when no barcode found in frame — ignore
