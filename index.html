@@ -968,6 +968,7 @@ async function saveManifest() {
     const t=new Date().toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
     setSyncStatus('prep-dot','prep-status','green','Synced '+prepItems.length+' items · '+t);
     showAlert(al,'success','✅ Manifest synced! '+prepItems.length+' items across '+[...new Set(prepItems.map(i=>i.location))].length+' location(s).');
+    renderPrepGroups(); // update badges immediately after sync
   } catch {
     setSyncStatus('prep-dot','prep-status','red','Sync failed');
     showAlert(al,'error','❌ Sync failed. Check internet connection.');
