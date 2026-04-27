@@ -1931,7 +1931,7 @@ async function loadZXing() {
   try {
     await new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.20.0/zxing.min.js';
+      script.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
       script.onload = resolve;
       script.onerror = reject;
       document.head.appendChild(script);
@@ -1957,18 +1957,28 @@ async function openCamera(targetInputId) {
   }
 
   try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: {ideal:1280}, height: {ideal:720} }
-    });
     const video = document.getElementById('camera-video');
-    video.srcObject = cameraStream;
-    await video.play();
     document.getElementById('camera-status').textContent = 'Point camera at barcode...';
 
-    // Create canvas for frame capture
-    cameraCanvas = document.createElement('canvas');
-    cameraCtx = cameraCanvas.getContext('2d');
-    scanFrameZXing(video);
+    // Use ZXing's built-in video scanning — works on Safari + Chrome
+    zxingReader.decodeFromConstraints(
+      { video: { facingMode: 'environment' } },
+      video,
+      (result, err) => {
+        if (result) {
+          const code = result.getText();
+          closeCamera();
+          const input = document.getElementById(cameraTargetInput);
+          if (input) {
+            input.value = code;
+            if (cameraTargetInput === 'prep-scan') prepAdd();
+            else if (cameraTargetInput === 'driver-scan') driverScan();
+            else if (cameraTargetInput === 'kchk-scan') kchkScan();
+          }
+        }
+        // err is normal when no barcode found in frame — ignore
+      }
+    );
   } catch(err) {
     if (err.name === 'NotAllowedError') {
       document.getElementById('camera-status').textContent = '❌ Camera access denied. Go to Settings → Safari → Camera and allow access.';
@@ -1979,47 +1989,15 @@ async function openCamera(targetInputId) {
 }
 
 function scanFrameZXing(video) {
-  if (!cameraStream || !zxingReader) return;
-  if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-    cameraAnimFrame = requestAnimationFrame(() => scanFrameZXing(video));
-    return;
-  }
-
-  cameraCanvas.width = video.videoWidth;
-  cameraCanvas.height = video.videoHeight;
-  cameraCtx.drawImage(video, 0, 0, cameraCanvas.width, cameraCanvas.height);
-
-  const imageData = cameraCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height);
-
-  try {
-    const luminanceSource = new ZXing.RGBLuminanceSource(imageData.data, cameraCanvas.width, cameraCanvas.height);
-    const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
-    const result = new ZXing.MultiFormatReader().decode(binaryBitmap);
-
-    if (result) {
-      const code = result.getText();
-      closeCamera();
-      const input = document.getElementById(cameraTargetInput);
-      if (input) {
-        input.value = code;
-        if (cameraTargetInput === 'prep-scan') prepAdd();
-        else if (cameraTargetInput === 'driver-scan') driverScan();
-        else if (cameraTargetInput === 'kchk-scan') kchkScan();
-      }
-      return;
-    }
-  } catch(e) {
-    // No barcode found in this frame — keep scanning
-  }
-
-  cameraAnimFrame = requestAnimationFrame(() => scanFrameZXing(video));
+  // Not used — ZXing handles scanning internally via decodeFromConstraints
 }
 
 function closeCamera() {
+  if (zxingReader) { try { zxingReader.reset(); } catch(e) {} }
   if (cameraAnimFrame) { cancelAnimationFrame(cameraAnimFrame); cameraAnimFrame = null; }
   if (cameraStream) { cameraStream.getTracks().forEach(t=>t.stop()); cameraStream = null; }
   const video = document.getElementById('camera-video');
-  if (video) video.srcObject = null;
+  if (video) { video.srcObject = null; }
   document.getElementById('camera-overlay').style.display = 'none';
 }
 </script>
