@@ -482,6 +482,13 @@ select optgroup{font-weight:700;color:var(--primary);}
     <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Clears today's manifest and driver progress. Inventory, locations, categories and history are preserved.</p>
     <button class="btn btn-danger" onclick="resetDay()">Reset Today's Data</button>
   </div>
+
+  <div class="card" style="border:2px solid var(--red);">
+    <div class="card-title" style="color:var(--red);">⚠️ Clear All Local Data</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Use this on any device that has stale or incorrect data. Wipes everything stored on this device and reloads fresh from Google Sheet. Use this if equipment keeps reappearing after being deleted from the sheet.</p>
+    <button class="btn btn-danger" onclick="clearAllLocalData()">🔄 Wipe Device & Sync Fresh from Sheet</button>
+    <div id="clear-local-alert" class="alert"></div>
+  </div>
 </div>
 
 </div><!-- end app-wrapper -->
@@ -644,63 +651,31 @@ async function syncFromSheet() {
   status.textContent='Syncing equipment data...';
   try {
     const localEq = get('equipment',[]);
-
-    // Step 1 — Pull from sheet
     const data = await pullSheets();
-    const sheetEq = (data.equipment||[]).filter(e => e.id && e.id !== 'id');
 
-    // Step 2 — Find local items not yet in sheet and push them up
-    const missingFromSheet = localEq.filter(le => !sheetEq.find(se => String(se.id) === String(le.id)));
-    if (missingFromSheet.length) {
-      status.textContent='Uploading '+missingFromSheet.length+' local item(s) to sheet...';
-      // Push each missing item as a new permanent row
-      for (const item of missingFromSheet) {
-        await pushNewEquipment({
-          ...item,
-          location: item.location || 'Kitchen',
-          status: item.status || 'available',
-          lastUpdated: nowISO()
-        });
-      }
+    // Sheet is the ONLY source of truth — never resurrect deleted items
+    let merged = localEq; // fallback if sheet has no data
+    if (data.equipment && data.equipment.length) {
+      const sheetEq = data.equipment.filter(e => e.id && e.id !== 'id');
+      merged = sheetEq.map(se => {
+        const local = localEq.find(le => String(le.id) === String(se.id));
+        return {
+          id: String(se.id),
+          name: se.name || (local ? local.name : ''),
+          category: se.category || (local ? local.category : ''),
+          location: se.location || 'Kitchen',
+          status: se.status || 'available',
+          notes: se.notes || (local ? local.notes : ''),
+          lastUpdated: se.lastUpdated || ''
+        };
+      });
+      set('equipment', merged);
     }
 
-    // Step 3 — Merge: sheet locations override local (sheet is truth),
-    // but local items that weren't on sheet are now added with Kitchen location
-    const allSheetIds = new Set([...sheetEq.map(se=>String(se.id)), ...missingFromSheet.map(le=>String(le.id))]);
-    const merged = [];
-
-    // Items that were already on sheet — use sheet location/status
-    sheetEq.forEach(se => {
-      const local = localEq.find(le => String(le.id) === String(se.id));
-      merged.push({
-        id: String(se.id),
-        name: se.name || (local ? local.name : ''),
-        category: se.category || (local ? local.category : ''),
-        location: se.location || 'Kitchen',
-        status: se.status || 'available',
-        notes: se.notes || (local ? local.notes : ''),
-        lastUpdated: se.lastUpdated || ''
-      });
-    });
-
-    // Items just pushed from local — set as Kitchen/available
-    missingFromSheet.forEach(le => {
-      merged.push({
-        ...le,
-        location: 'Kitchen',
-        status: 'available',
-        lastUpdated: nowISO()
-      });
-    });
-
-    set('equipment', merged);
-
-    // Step 4 — Sync locations and categories
-    // Sheet wins if it has data, otherwise push local to sheet
+    // Sync locations and categories — sheet wins if it has data
     if (data.locations && data.locations.length) {
       set('locations', data.locations);
     } else {
-      // Push local locations to sheet
       const localLocs = get('locations',[]);
       if (localLocs.length) pushSettings().catch(()=>{});
     }
@@ -714,10 +689,8 @@ async function syncFromSheet() {
     const eqCount = merged.length;
     const lastSync = new Date().toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
     set('last_sync', lastSync);
-
-    const pushMsg = missingFromSheet.length ? ' ('+missingFromSheet.length+' new items added to sheet)' : '';
     status.className='alert alert-success show';
-    status.textContent='✅ Synced — '+eqCount+' items · '+lastSync+pushMsg+'. Dropdown shows Kitchen items only.';
+    status.textContent='✅ Synced — '+eqCount+' items · '+lastSync+'. Dropdown shows Kitchen items only.';
     setSyncStatus('prep-dot','prep-status','green','Synced · '+lastSync);
 
     renderPrepSelects();
@@ -1807,6 +1780,61 @@ function resetDay(){
   document.getElementById('round-indicator').style.display='none';
   const eq=get('equipment',[]);eq.forEach(e=>e.location='Kitchen');set('equipment',eq);
   alert('Day reset complete.');
+}
+
+async function clearAllLocalData() {
+  if (!confirm('This will wipe ALL data stored on this device and reload everything fresh from Google Sheet.\n\nAny unsynced changes will be lost.\n\nContinue?')) return;
+  const al = document.getElementById('clear-local-alert');
+  showAlert(al, 'info', 'Clearing local data...');
+  try {
+    // Clear everything from localStorage
+    localStorage.clear();
+    sessionStorage.clear();
+    showAlert(al, 'info', 'Local data cleared. Loading fresh from Google Sheet...');
+    // Re-init storage defaults
+    set('locations',[]);
+    set('categories',[]);
+    set('equipment',[]);
+    set('manifest',[]);
+    set('latest_manifest',[]);
+    set('item_history',[]);
+    set('pickup_requests',[]);
+    set('rounds',[]);
+    // Pull everything fresh from sheet
+    const data = await pullSheets();
+    if (data.equipment && data.equipment.length) {
+      const eq = data.equipment.filter(e=>e.id&&e.id!=='id').map(e=>({
+        id: String(e.id),
+        name: e.name||'',
+        category: e.category||'',
+        location: e.location||'Kitchen',
+        status: e.status||'available',
+        notes: e.notes||'',
+        lastUpdated: e.lastUpdated||''
+      }));
+      set('equipment', eq);
+    }
+    if (data.locations && data.locations.length) set('locations', data.locations);
+    if (data.categories && data.categories.length) set('categories', data.categories);
+    if (data.config) {
+      set('cached_pins', {
+        staff_pin: String(data.config.staff_pin||''),
+        admin_pin: String(data.config.admin_pin||'')
+      });
+    }
+    // Mark as synced
+    localStorage.setItem('twl_v5_synced','1');
+    const t = new Date().toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
+    set('last_sync', t);
+    showAlert(al, 'success', '✅ Done! Loaded '+get('equipment',[]).length+' items fresh from Google Sheet.');
+    // Refresh all views
+    renderPrepSelects();
+    renderPrepGroups();
+    renderEquipment();
+    renderAdmin();
+  } catch(err) {
+    showAlert(al, 'error', '❌ Failed to load from sheet. Check internet connection and try again.');
+  }
 }
 
 // ═══════════════════════════════════
